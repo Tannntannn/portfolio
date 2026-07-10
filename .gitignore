@@ -1,0 +1,15 @@
+# Dependencies / OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Large / private source docs kept locally (site uses assets/ copies)
+/A NARRATIVE REPORT.docx
+/Trist Cv.docx
+/Certificate.png
+/Certificate Intern - Mark Tristan Perjes De Villa.pdf
+
+# Editor
+.vscode/
+.idea/
+*.swp
