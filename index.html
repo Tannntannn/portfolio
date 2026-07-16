@@ -37,7 +37,7 @@
       </a>
 
       <ul class="nav-links" role="list">
-        <li><a href="#services" class="nav-link" data-section="services">Services</a></li>
+        <li><a href="#expertise" class="nav-link" data-section="expertise">Skills</a></li>
         <li><a href="#experience" class="nav-link" data-section="experience">OJT</a></li>
         <li><a href="#work" class="nav-link" data-section="work">Work</a></li>
         <li><a href="#about" class="nav-link" data-section="about">About</a></li>
@@ -58,7 +58,7 @@
 
     <nav id="mobile-menu" class="mobile-menu" hidden aria-label="Mobile navigation">
       <ul role="list">
-        <li><a href="#services">Services</a></li>
+        <li><a href="#expertise">Skills</a></li>
         <li><a href="#experience">OJT</a></li>
         <li><a href="#work">Work</a></li>
         <li><a href="#about">About</a></li>
@@ -84,7 +84,7 @@
             </p>
             <div class="hero__actions reveal reveal-delay-3">
               <a href="#work" class="btn btn--dark btn--lg shimmer">View my work ↓</a>
-              <a href="assets/Mark-Tristan-De-Villa-CV.docx" class="btn btn--outline btn--lg" download>Download CV</a>
+              <a href="#contact" class="btn btn--outline btn--lg">Get in touch</a>
               <a href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" class="btn btn--outline btn--lg" target="_blank" rel="noopener noreferrer">LinkedIn</a>
             </div>
             <div class="hero__meta reveal reveal-delay-4">
@@ -111,29 +111,51 @@
       </div>
     </section>
 
-    <!-- Services -->
-    <section id="services" class="section" aria-labelledby="services-heading">
+    <!-- Skills & Experience -->
+    <section id="expertise" class="section" aria-labelledby="expertise-heading">
       <div class="container">
         <header class="section-header">
-          <p class="section-label reveal">What I do</p>
-          <h2 id="services-heading" class="section-title reveal reveal-delay-1">Services</h2>
-          <p class="section-copy reveal reveal-delay-2">Focused delivery across web, mobile, and WordPress — from layout to logic.</p>
+          <p class="section-label reveal">What I offer</p>
+          <h2 id="expertise-heading" class="section-title reveal reveal-delay-1">Skills &amp; experience</h2>
+          <p class="section-copy reveal reveal-delay-2">Hands-on work across web systems, Android, and WordPress — shaped by academic projects and industry OJT.</p>
         </header>
-        <div class="services-rail">
-          <article class="service-item reveal reveal-delay-1">
-            <span class="service-item__index" aria-hidden="true">01</span>
-            <h3>Web Development</h3>
-            <p>Responsive sites with HTML, CSS, and JavaScript — academic builds to polished landing pages that hold up on every viewport.</p>
+        <div class="expertise-grid">
+          <article class="expertise-card reveal reveal-delay-1">
+            <h3>Full-stack web development</h3>
+            <p>End-to-end web apps with React, Next.js, TypeScript, Firebase, and Supabase — from UI and auth to databases and deployment.</p>
+            <ul class="expertise-card__skills" aria-label="Related skills">
+              <li>React</li>
+              <li>Next.js</li>
+              <li>TypeScript</li>
+              <li>Firebase</li>
+              <li>Supabase</li>
+              <li>Tailwind CSS</li>
+            </ul>
+            <p class="expertise-card__note">FitnessHood · AspireWrite · SLSU Campus Marketplace</p>
           </article>
-          <article class="service-item reveal reveal-delay-2">
-            <span class="service-item__index" aria-hidden="true">02</span>
-            <h3>Android Development</h3>
-            <p>Mobile apps in Java and Kotlin with clear UX, solid structure, and features shaped by coursework and hands-on practice.</p>
+          <article class="expertise-card reveal reveal-delay-2">
+            <h3>Android development</h3>
+            <p>Mobile apps in Java with Firebase — interactive lessons, quizzes, real-time features, and instructor dashboards for learning platforms.</p>
+            <ul class="expertise-card__skills" aria-label="Related skills">
+              <li>Java</li>
+              <li>Android Studio</li>
+              <li>Firebase Auth</li>
+              <li>Cloud Firestore</li>
+              <li>XML layouts</li>
+            </ul>
+            <p class="expertise-card__note">Code Clash — gamified Java learning app</p>
           </article>
-          <article class="service-item reveal reveal-delay-3">
-            <span class="service-item__index" aria-hidden="true">03</span>
-            <h3>WordPress &amp; Elementor</h3>
-            <p>Business sites and page design with WordPress and Elementor — reusable layouts, easy content updates, and clean presentation.</p>
+          <article class="expertise-card reveal reveal-delay-3">
+            <h3>WordPress &amp; front-end</h3>
+            <p>Responsive business websites with WordPress and Elementor — custom layouts, theme building, and performance-focused front-end work.</p>
+            <ul class="expertise-card__skills" aria-label="Related skills">
+              <li>WordPress</li>
+              <li>Elementor Pro</li>
+              <li>HTML5</li>
+              <li>CSS3</li>
+              <li>JavaScript</li>
+            </ul>
+            <p class="expertise-card__note">OJT at Taaeen — 600-hour internship</p>
           </article>
         </div>
       </div>
@@ -296,7 +318,7 @@
               </div>
             </div>
             <div class="about-actions reveal reveal-delay-4">
-              <a href="assets/Mark-Tristan-De-Villa-CV.docx" class="btn btn--dark shimmer" download>Download CV</a>
+              <a href="#contact" class="btn btn--dark shimmer">Get in touch</a>
               <a href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" class="btn btn--outline" target="_blank" rel="noopener noreferrer">View LinkedIn →</a>
             </div>
           </div>
@@ -333,21 +355,29 @@
                   <span class="contact-link__icon"><svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></span>
                   github.com/Tannntannn
                 </a>
-                <a href="assets/Mark-Tristan-De-Villa-CV.docx" class="contact-link" download>
-                  <span class="contact-link__icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
-                  Download CV
-                </a>
               </div>
             </div>
-            <form id="contact-form" class="reveal reveal-delay-2" action="#" method="post" novalidate>
+            <form
+              id="contact-form"
+              class="reveal reveal-delay-2"
+              action="https://formsubmit.co/devillamarktristan@gmail.com"
+              method="POST"
+              novalidate>
+              <input type="hidden" name="_subject" value="Portfolio contact from website">
+              <input type="hidden" name="_captcha" value="false">
+              <input type="hidden" name="_template" value="table">
+              <input type="text" name="_honey" class="form-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <div id="form-status" class="form-status" role="status" aria-live="polite" hidden></div>
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label" for="name">Name *</label>
                   <input class="form-input" type="text" id="name" name="name" placeholder="Your name" required autocomplete="name">
+                  <p class="form-error" id="name-error" hidden></p>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="email">Email *</label>
                   <input class="form-input" type="email" id="email" name="email" placeholder="you@email.com" required autocomplete="email">
+                  <p class="form-error" id="email-error" hidden></p>
                 </div>
               </div>
               <div class="form-group">
@@ -357,8 +387,9 @@
               <div class="form-group">
                 <label class="form-label" for="message">Message *</label>
                 <textarea class="form-input" id="message" name="message" rows="4" placeholder="Tell me about your project..." required></textarea>
+                <p class="form-error" id="message-error" hidden></p>
               </div>
-              <button type="submit" class="btn btn--primary btn--block btn--lg shimmer">Send message →</button>
+              <button type="submit" class="btn btn--primary btn--block btn--lg shimmer" id="form-submit">Send message →</button>
             </form>
           </div>
         </div>

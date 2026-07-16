@@ -74,7 +74,7 @@
   /* ── Scroll spy ── */
   function updateActiveNav() {
     const links = document.querySelectorAll('.nav-link[data-section]');
-    const sections = ['contact', 'about', 'experience', 'work', 'services', 'hero'];
+    const sections = ['contact', 'about', 'experience', 'work', 'expertise', 'hero'];
     const offset = 130;
     const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
 
@@ -208,20 +208,107 @@
     });
   }
 
-  /* ── Contact form (mailto fallback) ── */
+  /* ── Contact form ── */
   function initContactForm() {
     const form = document.getElementById('contact-form');
     if (!form) return;
 
-    form.addEventListener('submit', (e) => {
-      if (form.action && form.action !== '#' && !form.action.endsWith('#')) return;
+    const statusEl = document.getElementById('form-status');
+    const submitBtn = document.getElementById('form-submit');
+    const fields = {
+      name: { input: form.name, error: document.getElementById('name-error') },
+      email: { input: form.email, error: document.getElementById('email-error') },
+      message: { input: form.message, error: document.getElementById('message-error') },
+    };
+
+    function showStatus(message, type) {
+      if (!statusEl) return;
+      statusEl.hidden = false;
+      statusEl.textContent = message;
+      statusEl.className = `form-status form-status--${type}`;
+    }
+
+    function clearErrors() {
+      Object.values(fields).forEach(({ input, error }) => {
+        input?.classList.remove('form-input--error');
+        if (error) {
+          error.hidden = true;
+          error.textContent = '';
+        }
+      });
+    }
+
+    function setError(key, message) {
+      const field = fields[key];
+      if (!field) return;
+      field.input?.classList.add('form-input--error');
+      if (field.error) {
+        field.error.hidden = false;
+        field.error.textContent = message;
+      }
+    }
+
+    function validate() {
+      clearErrors();
+      let valid = true;
+
+      if (!fields.name.input?.value.trim()) {
+        setError('name', 'Please enter your name.');
+        valid = false;
+      }
+
+      const email = fields.email.input?.value.trim() || '';
+      if (!email) {
+        setError('email', 'Please enter your email.');
+        valid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('email', 'Please enter a valid email address.');
+        valid = false;
+      }
+
+      if (!fields.message.input?.value.trim()) {
+        setError('message', 'Please enter a message.');
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = form.name.value.trim();
-      const email = form.email.value.trim();
-      const subject = form.subject.value.trim() || 'Portfolio inquiry';
-      const message = form.message.value.trim();
-      const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
-      window.location.href = `mailto:devillamarktristan@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      if (form.querySelector('[name="_honey"]')?.value) return;
+      if (!validate()) {
+        showStatus('Please fix the highlighted fields.', 'error');
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+      }
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+
+        if (response.ok) {
+          form.reset();
+          clearErrors();
+          showStatus('Message sent! I will get back to you soon.', 'success');
+        } else {
+          showStatus('Something went wrong. Please email me directly.', 'error');
+        }
+      } catch {
+        showStatus('Could not send. Please email devillamarktristan@gmail.com directly.', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send message →';
+        }
+      }
     });
   }
 
