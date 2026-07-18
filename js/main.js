@@ -74,7 +74,8 @@
   /* ── Scroll spy ── */
   function updateActiveNav() {
     const links = document.querySelectorAll('.nav-link[data-section]');
-    const sections = ['contact', 'about', 'experience', 'work', 'services', 'hero'];
+    // Bottom-to-top DOM order so the deepest visible section wins
+    const sections = ['contact', 'about', 'work', 'experience', 'services', 'hero'];
     const offset = 130;
     const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
 
@@ -168,20 +169,25 @@
       .join('');
 
     workGrid.querySelectorAll('.reveal').forEach((el) => {
-      requestAnimationFrame(() => {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-        );
-        observer.observe(el);
-      });
+      const rect = el.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (inView) {
+        requestAnimationFrame(() => el.classList.add('is-visible'));
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
+      );
+      observer.observe(el);
     });
   }
 
