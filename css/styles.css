@@ -495,13 +495,14 @@ ul {
 
 .hero__atmosphere {
   position: absolute;
-  inset: 0;
+  inset: -12% 0;
   background:
     linear-gradient(120deg, var(--bg) 0%, var(--bg) 42%, transparent 70%),
     linear-gradient(180deg, transparent 60%, var(--bg) 100%),
     url('../assets/profile.png') right center / cover no-repeat;
   opacity: 0.18;
   pointer-events: none;
+  will-change: transform;
 }
 
 @media (min-width: 900px) {
@@ -522,11 +523,17 @@ ul {
 
 .hero__mesh {
   position: absolute;
-  inset: 0;
+  inset: -8% 0;
   pointer-events: none;
+  will-change: transform;
   background:
     radial-gradient(circle at 20% 30%, rgba(228, 87, 46, 0.14), transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(20, 24, 31, 0.06), transparent 35%);
+}
+
+.hero__copy,
+.hero__visual {
+  will-change: transform;
 }
 
 .hero__inner {
@@ -656,58 +663,59 @@ ul {
 }
 
 /* ── 8. Services rail ── */
+.section--services {
+  overflow: hidden;
+  position: relative;
+}
+
+.section-parallax {
+  position: absolute;
+  width: min(42rem, 70vw);
+  height: min(42rem, 70vw);
+  top: 10%;
+  right: -12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(228, 87, 46, 0.16), transparent 68%);
+  pointer-events: none;
+  will-change: transform;
+  z-index: 0;
+}
+
+.dark .section-parallax {
+  background: radial-gradient(circle, rgba(228, 87, 46, 0.2), transparent 68%);
+}
+
+.section-parallax__content {
+  position: relative;
+  z-index: 1;
+}
+
 .services-rail {
   display: grid;
-  gap: 0;
-  border-top: 1px solid var(--border-strong);
+  gap: 1rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 700px) {
   .services-rail {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1100px) {
-  .services-rail {
-    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
   }
 }
 
 .service-item {
-  padding: 2rem 0;
-  border-bottom: 1px solid var(--border-strong);
+  padding: 1.75rem 1.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--bg-card) 70%, transparent);
+  backdrop-filter: blur(8px);
+  transition: transform 0.28s ease, border-color 0.2s ease, box-shadow 0.28s ease;
+  height: 100%;
 }
 
-@media (min-width: 768px) {
-  .service-item {
-    padding: 2.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-strong);
-    border-right: 1px solid var(--border-strong);
-  }
-  .service-item:nth-child(2n) {
-    border-right: none;
-  }
-}
-
-@media (min-width: 1100px) {
-  .service-item {
-    border-bottom: none;
-    padding: 2.5rem 1.5rem 2.5rem 0;
-  }
-  .service-item:first-child {
-    padding-left: 0;
-  }
-  .service-item:nth-child(2n) {
-    border-right: 1px solid var(--border-strong);
-  }
-  .service-item:last-child {
-    border-right: none;
-    padding-right: 0;
-  }
-  .service-item:not(:first-child) {
-    padding-left: 1.5rem;
-  }
+.service-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(228, 87, 46, 0.45);
+  box-shadow: var(--shadow-md);
 }
 
 .service-item__index {
@@ -717,19 +725,19 @@ ul {
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--accent);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.1rem;
 }
 
 .service-item h3 {
-  font-size: 1.35rem;
-  margin-bottom: 0.85rem;
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
 }
 
 .service-item p {
   font-size: 0.9375rem;
   color: var(--text-muted);
   line-height: 1.7;
-  max-width: 22rem;
+  max-width: 28rem;
 }
 
 /* ── 9. OJT / Experience ── */
@@ -1383,10 +1391,14 @@ textarea.form-input {
     transition: none;
   }
   .project-card:hover,
-  .credential-thumb:hover {
+  .credential-thumb:hover,
+  .service-item:hover {
     transform: none;
   }
   .hero__portrait img {
     animation: none;
+  }
+  [data-parallax] {
+    transform: none !important;
   }
 }

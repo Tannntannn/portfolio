@@ -72,11 +72,11 @@
 
     <!-- Hero -->
     <section id="hero" class="hero">
-      <div class="hero__atmosphere" aria-hidden="true"></div>
-      <div class="hero__mesh" aria-hidden="true"></div>
+      <div class="hero__atmosphere" data-parallax="0.25" aria-hidden="true"></div>
+      <div class="hero__mesh" data-parallax="0.45" aria-hidden="true"></div>
       <div class="container hero__inner">
         <div class="hero__layout">
-          <div class="hero__copy">
+          <div class="hero__copy" data-parallax="0.08">
             <p class="hero__eyebrow reveal">Software Developer · BSIT 2026</p>
             <h1 class="hero__brand reveal reveal-delay-1">Mark Tristan</h1>
             <p class="hero__lead reveal reveal-delay-2">
@@ -101,7 +101,7 @@
               </div>
             </div>
           </div>
-          <div class="hero__visual reveal reveal-delay-2">
+          <div class="hero__visual reveal reveal-delay-2" data-parallax="-0.12">
             <div class="hero__portrait">
               <img src="assets/profile.png" alt="Mark Tristan De Villa — Software Developer" width="560" height="700" loading="eager">
             </div>
@@ -111,8 +111,9 @@
     </section>
 
     <!-- Services -->
-    <section id="services" class="section" aria-labelledby="services-heading">
-      <div class="container">
+    <section id="services" class="section section--services" aria-labelledby="services-heading">
+      <div class="section-parallax" data-parallax="0.2" aria-hidden="true"></div>
+      <div class="container section-parallax__content">
         <header class="section-header">
           <p class="section-label reveal">What I do</p>
           <h2 id="services-heading" class="section-title reveal reveal-delay-1">Services</h2>

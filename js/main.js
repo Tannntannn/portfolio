@@ -214,6 +214,41 @@
     });
   }
 
+  /* ── Parallax ── */
+  function initParallax() {
+    const layers = Array.from(document.querySelectorAll('[data-parallax]'));
+    if (!layers.length) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let ticking = false;
+
+    const update = () => {
+      const scrollY = window.scrollY || 0;
+      const viewMid = window.innerHeight * 0.5;
+
+      layers.forEach((el) => {
+        const speed = parseFloat(el.dataset.parallax) || 0;
+        const rect = el.getBoundingClientRect();
+        const elMid = rect.top + rect.height * 0.5;
+        const distance = elMid - viewMid;
+        const y = distance * speed * -0.35 + scrollY * speed * 0.15;
+        el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
+      });
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+
   /* ── Init ── */
   function init() {
     initTheme();
@@ -222,6 +257,7 @@
     initReveal();
     initProjectFilters();
     renderProjects();
+    initParallax();
     if (yearEl) yearEl.textContent = new Date().getFullYear();
   }
 
