@@ -38,7 +38,7 @@
       <a href="#work" class="nav-link" data-section="work">projects</a>
       <a href="#experience" class="nav-link" data-section="experience">experience</a>
       <a href="#stack" class="nav-link" data-section="stack">stack</a>
-      <a href="#about" class="nav-link" data-section="about">about</a>
+      <a href="#github" class="nav-link" data-section="github">github</a>
       <a href="#contact" class="nav-link" data-section="contact">contact</a>
     </nav>
     <div class="sidebar__foot">
@@ -69,7 +69,7 @@
       <a href="#work">projects</a>
       <a href="#experience">experience</a>
       <a href="#stack">stack</a>
-      <a href="#about">about</a>
+      <a href="#github">github</a>
       <a href="#contact">contact</a>
     </nav>
   </div>
@@ -78,24 +78,34 @@
     <main id="main">
 
       <section id="hero" class="hero">
-        <div class="halftone hero__halftone" aria-hidden="true"></div>
-        <p class="micro reveal">Software Developer · BSIT 2026</p>
-        <h1 class="hero__title reveal reveal-delay-1">mark<br>tristan</h1>
-        <p class="hero__lead reveal reveal-delay-2">
-          I'm a software developer. I build modern web systems, Android apps, and WordPress sites — and I handle IT support when hardware or software needs fixing.
-        </p>
-        <p class="hero__lead reveal reveal-delay-2">
-          Open to full-time work and freelance projects. I turn requirements into clear UI, reliable logic, and maintainable code.
-        </p>
-        <div class="hero__links reveal reveal-delay-3">
-          <a class="ext" href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github</a>
-          <a class="ext" href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
-          <a class="ext" href="mailto:devillamarktristan@gmail.com">email</a>
+        <div class="hero__layout">
+          <div class="hero__photo reveal">
+            <div class="hero__photo-frame">
+              <img src="assets/profile.png" alt="Mark Tristan De Villa" width="320" height="320" loading="eager">
+              <div class="hero__photo-halftone" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="hero__copy">
+            <h1 class="hero__name reveal reveal-delay-1">Mark Tristan</h1>
+            <p class="hero__lead reveal reveal-delay-2">
+              I'm a software developer. I build modern web systems, Android apps, and WordPress sites — and I handle IT support when systems need fixing.
+            </p>
+            <p class="hero__lead reveal reveal-delay-2">
+              BSIT graduate based in Sariaya, Quezon. Open to full-time work and freelance projects.
+            </p>
+            <div class="hero__links reveal reveal-delay-3">
+              <a href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github</a>
+              <span class="hero__sep" aria-hidden="true">/</span>
+              <a href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
+              <span class="hero__sep" aria-hidden="true">/</span>
+              <a href="mailto:devillamarktristan@gmail.com">email</a>
+            </div>
+          </div>
         </div>
         <div class="stat-grid reveal reveal-delay-4">
           <div class="stat-cell">
             <p class="stat-value">5</p>
-            <p class="micro">projects shipped</p>
+            <p class="micro">projects</p>
           </div>
           <div class="stat-cell">
             <p class="stat-value">600</p>
@@ -103,7 +113,11 @@
           </div>
           <div class="stat-cell">
             <p class="stat-value">BSIT</p>
-            <p class="micro">2026 graduate</p>
+            <p class="micro">2026 grad</p>
+          </div>
+          <div class="stat-cell">
+            <p class="stat-value">CSTC</p>
+            <p class="micro">education</p>
           </div>
         </div>
       </section>
@@ -229,32 +243,24 @@
         </div>
       </section>
 
-      <section id="about" class="section" aria-labelledby="about-heading">
-        <h2 id="about-heading" class="section-label reveal">05 — about</h2>
-        <div class="about">
-          <div class="about__photo reveal">
-            <div class="about__photo-frame">
-              <img src="assets/profile.png" alt="Mark Tristan De Villa" width="400" height="500" loading="lazy">
-              <div class="halftone about__photo-fade" aria-hidden="true"></div>
-            </div>
-          </div>
-          <div class="about__copy">
-            <p class="about__text reveal reveal-delay-1">
-              I'm Mark Tristan P. De Villa, a Software Developer and BSIT graduate based in Sariaya, Quezon. I collaborate with teams, solve technical challenges, and ship practical solutions across web, Android, WordPress, and IT support.
-            </p>
-            <p class="about__text reveal reveal-delay-2">
-              Open to full-time work and freelance projects where I can keep learning and deliver user-focused products.
-            </p>
-            <div class="about__edu reveal reveal-delay-3">
-              <p class="micro">education</p>
-              <h3>Bachelor of Science in Information Technology</h3>
-              <p class="about__school">College of Sciences, Technology and Communications, Inc. (CSTC)</p>
-              <p class="micro">Sariaya, Quezon · 2022 – 2026</p>
-            </div>
-            <p class="about__links reveal reveal-delay-4">
-              <a class="ext" href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
-            </p>
-          </div>
+      <section id="github" class="section" aria-labelledby="github-heading">
+        <div class="section-head-row reveal">
+          <h2 id="github-heading" class="section-label">05 — github</h2>
+          <a class="ext" href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">profile</a>
+        </div>
+        <div class="gh-card reveal reveal-delay-1">
+          <p class="micro gh-card__label">contributions</p>
+          <a href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer" class="gh-chart-link" aria-label="View GitHub profile contributions">
+            <img
+              id="gh-chart"
+              class="gh-chart"
+              src="https://ghchart.rshah.org/8a8a92/Tannntannn"
+              alt="GitHub contribution graph for Tannntannn"
+              width="720"
+              height="120"
+              loading="lazy">
+          </a>
+          <p class="micro gh-card__note">@Tannntannn · last 12 months</p>
         </div>
       </section>
 

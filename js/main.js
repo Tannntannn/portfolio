@@ -24,24 +24,25 @@
     return localStorage.getItem('theme'); // 'light' | 'dark' | null (system)
   }
 
-  function resolveTheme() {
-    const stored = getStoredTheme();
-    if (stored === 'dark' || stored === 'light') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  function resolveThemeFromMode(mode) {
+    if (mode === 'system' || !mode) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return mode;
   }
 
-  function applyTheme(mode) {
-    // mode: 'light' | 'dark' | 'system'
-    if (mode === 'system') {
-      localStorage.removeItem('theme');
-    } else {
-      localStorage.setItem('theme', mode);
-    }
+  function updateGhChart(resolved) {
+    const chart = document.getElementById('gh-chart');
+    if (!chart) return;
+    const color = resolved === 'dark' ? '8a8a92' : '525252';
+    chart.src = `https://ghchart.rshah.org/${color}/Tannntannn`;
+  }
 
-    const resolved = mode === 'system' ? (
-      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    ) : mode;
+  function setThemeMode(mode) {
+    if (mode === 'system') localStorage.removeItem('theme');
+    else localStorage.setItem('theme', mode);
 
+    const resolved = resolveThemeFromMode(mode);
     html.classList.toggle('dark', resolved === 'dark');
     html.dataset.theme = resolved;
 
@@ -51,24 +52,62 @@
     const aria = `Theme: ${label}. Click to cycle.`;
     themeToggle?.setAttribute('aria-label', aria);
     themeToggleMobile?.setAttribute('aria-label', aria);
+    updateGhChart(resolved);
   }
 
-  function cycleTheme() {
+  function nextThemeMode() {
     const stored = getStoredTheme();
-    if (!stored) applyTheme('light');
-    else if (stored === 'light') applyTheme('dark');
-    else applyTheme('system');
+    if (!stored) return 'light';
+    if (stored === 'light') return 'dark';
+    return 'system';
+  }
+
+  function dropletThemeSwitch(event) {
+    const next = nextThemeMode();
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!document.startViewTransition || reduced) {
+      setThemeMode(next);
+      return;
+    }
+
+    const x = event?.clientX ?? window.innerWidth / 2;
+    const y = event?.clientY ?? window.innerHeight / 2;
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = document.startViewTransition(() => {
+      setThemeMode(next);
+    });
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 540,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+    }).catch(() => {});
   }
 
   function initTheme() {
     const stored = getStoredTheme();
-    applyTheme(stored || 'system');
+    setThemeMode(stored || 'system');
 
-    themeToggle?.addEventListener('click', cycleTheme);
-    themeToggleMobile?.addEventListener('click', cycleTheme);
+    themeToggle?.addEventListener('click', dropletThemeSwitch);
+    themeToggleMobile?.addEventListener('click', dropletThemeSwitch);
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (!getStoredTheme()) applyTheme('system');
+      if (!getStoredTheme()) setThemeMode('system');
     });
   }
 
@@ -95,7 +134,7 @@
 
   function updateActiveNav() {
     const links = document.querySelectorAll('.nav-link[data-section]');
-    const sections = ['contact', 'about', 'stack', 'experience', 'work', 'services', 'hero'];
+    const sections = ['contact', 'github', 'stack', 'experience', 'work', 'services', 'hero'];
     const offset = 120;
     const atBottom =
       window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
