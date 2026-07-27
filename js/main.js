@@ -94,7 +94,7 @@
 
     const total = days.reduce((sum, d) => sum + (d.count || 0), 0);
     if (totalEl) {
-      totalEl.textContent = `${total.toLocaleString()} contributions in the last year`;
+      totalEl.textContent = `${total.toLocaleString()} CONTRIBUTIONS IN THE LAST YEAR`;
     }
   }
 
