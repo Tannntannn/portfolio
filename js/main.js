@@ -2,42 +2,73 @@
   'use strict';
 
   const html = document.documentElement;
-  const header = document.getElementById('site-header');
   const mobileMenu = document.getElementById('mobile-menu');
   const menuToggle = document.getElementById('menu-toggle');
   const themeToggle = document.getElementById('theme-toggle');
+  const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+  const themeLabel = document.getElementById('theme-label');
   const workGrid = document.getElementById('work-grid');
   const filterBar = document.getElementById('project-filters');
   const yearEl = document.getElementById('year');
+  const yearFooter = document.getElementById('year-footer');
 
   let activeFilter = 'all';
 
   function countProjectsForCategory(categoryValue) {
+    if (typeof PROJECTS === 'undefined') return 0;
     if (categoryValue === 'all') return PROJECTS.length;
     return PROJECTS.filter((p) => p.category === categoryValue).length;
   }
 
-  function getPreferredTheme() {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'dark' || stored === 'light') return stored;
-    return 'dark';
+  function getStoredTheme() {
+    return localStorage.getItem('theme'); // 'light' | 'dark' | null (system)
   }
 
-  function applyTheme(theme) {
-    html.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('theme', theme);
-    if (themeToggle) {
-      themeToggle.setAttribute(
-        'aria-label',
-        theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
-      );
+  function resolveTheme() {
+    const stored = getStoredTheme();
+    if (stored === 'dark' || stored === 'light') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(mode) {
+    // mode: 'light' | 'dark' | 'system'
+    if (mode === 'system') {
+      localStorage.removeItem('theme');
+    } else {
+      localStorage.setItem('theme', mode);
     }
+
+    const resolved = mode === 'system' ? (
+      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    ) : mode;
+
+    html.classList.toggle('dark', resolved === 'dark');
+    html.dataset.theme = resolved;
+
+    const label = getStoredTheme() ? resolved : 'system';
+    if (themeLabel) themeLabel.textContent = label;
+
+    const aria = `Theme: ${label}. Click to cycle.`;
+    themeToggle?.setAttribute('aria-label', aria);
+    themeToggleMobile?.setAttribute('aria-label', aria);
+  }
+
+  function cycleTheme() {
+    const stored = getStoredTheme();
+    if (!stored) applyTheme('light');
+    else if (stored === 'light') applyTheme('dark');
+    else applyTheme('system');
   }
 
   function initTheme() {
-    applyTheme(getPreferredTheme());
-    themeToggle?.addEventListener('click', () => {
-      applyTheme(html.classList.contains('dark') ? 'light' : 'dark');
+    const stored = getStoredTheme();
+    applyTheme(stored || 'system');
+
+    themeToggle?.addEventListener('click', cycleTheme);
+    themeToggleMobile?.addEventListener('click', cycleTheme);
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (!getStoredTheme()) applyTheme('system');
     });
   }
 
@@ -60,15 +91,6 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') setMenuOpen(false);
     });
-  }
-
-  function initHeaderScroll() {
-    const onScroll = () => {
-      header?.classList.toggle('is-scrolled', window.scrollY > 16);
-      updateActiveNav();
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
   }
 
   function updateActiveNav() {
@@ -99,10 +121,14 @@
     });
   }
 
+  function initScrollSpy() {
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    updateActiveNav();
+  }
+
   function observeReveal(el) {
     const rect = el.getBoundingClientRect();
-    const inView = rect.top < window.innerHeight && rect.bottom > 0;
-    if (inView) {
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
       requestAnimationFrame(() => el.classList.add('is-visible'));
       return;
     }
@@ -116,7 +142,7 @@
           }
         });
       },
-      { threshold: 0.08, rootMargin: '0px 0px -24px 0px' }
+      { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
     );
     observer.observe(el);
   }
@@ -142,8 +168,7 @@
         : PROJECTS.filter((p) => p.category === activeFilter);
 
     if (filtered.length === 0) {
-      workGrid.innerHTML =
-        '<p class="work-empty">No projects in this category yet.</p>';
+      workGrid.innerHTML = '<p class="work-empty">No projects in this category yet.</p>';
       return;
     }
 
@@ -157,16 +182,16 @@
         const url = hasUrl ? escapeHtml(p.url) : '';
 
         const media = hasUrl
-          ? `<a href="${url}" class="project-row__media" target="_blank" rel="noopener noreferrer" aria-label="Open ${title}"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></a>`
-          : `<div class="project-row__media"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></div>`;
+          ? `<a href="${url}" class="project-card__media" target="_blank" rel="noopener noreferrer" aria-label="Open ${title}"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></a>`
+          : `<div class="project-card__media"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></div>`;
 
         const titleBlock = hasUrl
-          ? `<a href="${url}" class="project-row__title" target="_blank" rel="noopener noreferrer">${title}</a>`
-          : `<h3 class="project-row__title">${title}</h3>`;
+          ? `<a href="${url}" class="project-card__title" target="_blank" rel="noopener noreferrer">${title}</a>`
+          : `<h3 class="project-card__title">${title}</h3>`;
 
         const action = hasUrl
-          ? `<a href="${url}" class="link-arrow" target="_blank" rel="noopener noreferrer">visit ↗</a>`
-          : `<span class="link-arrow link-arrow--static">Android app</span>`;
+          ? `<a href="${url}" class="link-mono" target="_blank" rel="noopener noreferrer">visit ↗</a>`
+          : `<span class="link-mono link-mono--static">android app</span>`;
 
         const tags = p.tags
           .map(
@@ -176,15 +201,15 @@
           .join('');
 
         return `
-      <article class="project-row reveal">
+      <article class="project-card reveal">
         ${media}
-        <div class="project-row__body">
+        <div>
           ${titleBlock}
-          <p class="project-row__desc">${desc}</p>
+          <p class="project-card__desc">${desc}</p>
           <div class="tag-list">${tags}</div>
         </div>
-        <div class="project-row__aside">
-          <span class="project-row__year">${year}</span>
+        <div class="project-card__aside">
+          <span class="project-card__year">${year}</span>
           ${action}
         </div>
       </article>`;
@@ -219,11 +244,13 @@
   function init() {
     initTheme();
     initMobileMenu();
-    initHeaderScroll();
+    initScrollSpy();
     initReveal();
     initProjectFilters();
     renderProjects();
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
+    const y = String(new Date().getFullYear());
+    if (yearEl) yearEl.textContent = y;
+    if (yearFooter) yearFooter.textContent = y;
   }
 
   if (document.readyState === 'loading') {

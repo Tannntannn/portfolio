@@ -1,34 +1,22 @@
 # Mark Tristan De Villa — Portfolio
 
-Editorial single-page portfolio inspired by a clean numbered-section layout.
+Personal portfolio styled with the [bryl-minimal design language](https://github.com/bryllim/bryl-minimal-design): monochrome palette, Geist typography, left sidebar, numbered sections, and halftone texture.
 
-**Live site:** https://tannntannn.github.io/portfolio/
+**Live:** https://tannntannn.github.io/portfolio/
+
+## Design stack
+
+- **Fonts:** Geist, Geist Mono, Geist Pixel (Square), Source Serif 4
+- **Theme:** light / dark / system (token remapping, no accent color)
+- **Layout:** fixed sidebar ≥1024px, narrow content measure, hairline dividers
 
 ## Sections
 
-01 Services · 02 Projects · 03 Experience · 04 Stack · 05 About · 06 Contact
-
-## Featured work
-
-- [SLSU Campus Market Place](https://slsu-marketplace.org/)
-- [AspireWrite](https://aspirewrite.org/)
-- [FitnessHood](https://www.fitnesshood.org/)
-- [Studio 8teen Photography](https://www.studio8teen.org/)
-- Code Clash (Android)
-
-## Structure
-
-```
-├── index.html
-├── css/styles.css
-├── js/main.js
-├── js/projects.js
-└── assets/
-```
+01 services · 02 projects · 03 experience · 04 stack · 05 about · 06 contact
 
 ## Local preview
 
-Open `index.html` in a browser, or:
+Open `index.html`, or:
 
 ```bash
 npx serve .

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Mark Tristan De Villa — Software Developer. BSIT graduate skilled in web, Android, React, WordPress, and Elementor.">
-  <meta name="keywords" content="software developer, web developer, android developer, react, wordpress, elementor, BSIT, portfolio">
   <meta name="author" content="Mark Tristan De Villa">
+  <meta name="color-scheme" content="light dark">
   <meta property="og:title" content="Mark Tristan De Villa — Software Developer">
   <meta property="og:description" content="Software Developer building websites, Android apps, WordPress sites, and IT support solutions.">
   <meta property="og:type" content="website">
@@ -14,17 +14,16 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 
   <script>
     (function () {
       var t = localStorage.getItem('theme');
-      if (t === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else {
-        document.documentElement.classList.add('dark');
-      }
+      var dark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (t === 'light') dark = false;
+      document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
     })();
   </script>
 </head>
@@ -32,286 +31,252 @@
 
   <a href="#main" class="skip-link">Skip to main content</a>
 
-  <header id="site-header" class="site-header">
-    <div class="container nav">
-      <a href="#hero" class="logo" aria-label="Mark Tristan — home">mark<span class="logo__accent">tristan</span></a>
-
-      <ul class="nav-links" role="list">
-        <li><a href="#services" class="nav-link" data-section="services">Services</a></li>
-        <li><a href="#work" class="nav-link" data-section="work">Projects</a></li>
-        <li><a href="#experience" class="nav-link" data-section="experience">Experience</a></li>
-        <li><a href="#stack" class="nav-link" data-section="stack">Stack</a></li>
-        <li><a href="#about" class="nav-link" data-section="about">About</a></li>
-        <li><a href="#contact" class="nav-link" data-section="contact">Contact</a></li>
-      </ul>
-
-      <div class="nav-actions">
-        <button type="button" id="theme-toggle" class="icon-btn" aria-label="Switch to light mode">
-          <svg class="theme-icon--moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <svg class="theme-icon--sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
-        </button>
-        <button type="button" id="menu-toggle" class="icon-btn menu-toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Toggle menu">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <nav id="mobile-menu" class="mobile-menu" hidden aria-label="Mobile navigation">
-      <ul role="list">
-        <li><a href="#services">Services</a></li>
-        <li><a href="#work">Projects</a></li>
-        <li><a href="#experience">Experience</a></li>
-        <li><a href="#stack">Stack</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
+  <aside class="sidebar" aria-label="Primary">
+    <a href="#hero" class="sidebar__brand">mark tristan</a>
+    <nav class="sidebar__nav">
+      <a href="#services" class="nav-link" data-section="services">services</a>
+      <a href="#work" class="nav-link" data-section="work">projects</a>
+      <a href="#experience" class="nav-link" data-section="experience">experience</a>
+      <a href="#stack" class="nav-link" data-section="stack">stack</a>
+      <a href="#about" class="nav-link" data-section="about">about</a>
+      <a href="#contact" class="nav-link" data-section="contact">contact</a>
     </nav>
+    <div class="sidebar__foot">
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-toggle__label">theme</span>
+        <span class="theme-toggle__value" id="theme-label">system</span>
+      </button>
+      <p class="sidebar__copy">© <span id="year"></span></p>
+    </div>
+  </aside>
+
+  <header id="site-header" class="topbar">
+    <a href="#hero" class="topbar__brand">mark tristan</a>
+    <div class="topbar__actions">
+      <button type="button" id="theme-toggle-mobile" class="icon-btn" aria-label="Toggle theme">
+        <svg class="theme-icon--moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg class="theme-icon--sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+      </button>
+      <button type="button" id="menu-toggle" class="icon-btn" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
   </header>
 
-  <main id="main">
+  <div id="mobile-menu" class="mobile-overlay" hidden>
+    <nav class="mobile-overlay__nav" aria-label="Mobile">
+      <a href="#services">services</a>
+      <a href="#work">projects</a>
+      <a href="#experience">experience</a>
+      <a href="#stack">stack</a>
+      <a href="#about">about</a>
+      <a href="#contact">contact</a>
+    </nav>
+  </div>
 
-    <!-- Hero -->
-    <section id="hero" class="hero">
-      <div class="container hero__inner">
-        <p class="hero__kicker reveal">Software Developer · BSIT 2026</p>
-        <h1 class="hero__name reveal reveal-delay-1">Mark Tristan</h1>
-        <p class="hero__bio reveal reveal-delay-2">
-          I'm a software developer. I build modern web systems, Android apps, and WordPress sites — and I also handle IT support when hardware or software needs fixing.
+  <div class="page">
+    <main id="main">
+
+      <section id="hero" class="hero">
+        <div class="halftone hero__halftone" aria-hidden="true"></div>
+        <p class="micro reveal">Software Developer · BSIT 2026</p>
+        <h1 class="hero__title reveal reveal-delay-1">mark<br>tristan</h1>
+        <p class="hero__lead reveal reveal-delay-2">
+          I'm a software developer. I build modern web systems, Android apps, and WordPress sites — and I handle IT support when hardware or software needs fixing.
         </p>
-        <p class="hero__bio reveal reveal-delay-2">
+        <p class="hero__lead reveal reveal-delay-2">
           Open to full-time work and freelance projects. I turn requirements into clear UI, reliable logic, and maintainable code.
         </p>
-        <div class="hero__socials reveal reveal-delay-3">
-          <a href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github ↗</a>
-          <a href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin ↗</a>
-          <a href="mailto:devillamarktristan@gmail.com">email ↗</a>
+        <div class="hero__links reveal reveal-delay-3">
+          <a class="ext" href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github</a>
+          <a class="ext" href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
+          <a class="ext" href="mailto:devillamarktristan@gmail.com">email</a>
         </div>
-        <div class="hero__stats reveal reveal-delay-4">
-          <div>
-            <p class="hero__stat-value">5</p>
-            <p class="hero__stat-label">projects shipped</p>
+        <div class="stat-grid reveal reveal-delay-4">
+          <div class="stat-cell">
+            <p class="stat-value">5</p>
+            <p class="micro">projects shipped</p>
           </div>
-          <div>
-            <p class="hero__stat-value">600</p>
-            <p class="hero__stat-label">OJT hours</p>
+          <div class="stat-cell">
+            <p class="stat-value">600</p>
+            <p class="micro">ojt hours</p>
           </div>
-          <div>
-            <p class="hero__stat-value">BSIT</p>
-            <p class="hero__stat-label">2026 graduate</p>
+          <div class="stat-cell">
+            <p class="stat-value">BSIT</p>
+            <p class="micro">2026 graduate</p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 01 Services -->
-    <section id="services" class="section" aria-labelledby="services-heading">
-      <div class="container">
-        <header class="section-head reveal">
-          <h2 id="services-heading" class="section-num">01 — services</h2>
-        </header>
-        <ul class="service-list" role="list">
-          <li class="service-row reveal reveal-delay-1">
-            <span class="service-row__index">01</span>
+      <section id="services" class="section" aria-labelledby="services-heading">
+        <h2 id="services-heading" class="section-label reveal">01 — services</h2>
+        <ul class="row-list" role="list">
+          <li class="row-item reveal reveal-delay-1">
+            <span class="micro row-item__idx">01</span>
             <div>
-              <h3>Web Development</h3>
-              <p>Responsive sites with HTML, CSS, and JavaScript — from academic builds to polished landing pages that hold up on every viewport.</p>
+              <h3 class="row-item__title">Web Development</h3>
+              <p class="row-item__text">Responsive sites with HTML, CSS, and JavaScript — from academic builds to polished landing pages that hold up on every viewport.</p>
             </div>
           </li>
-          <li class="service-row reveal reveal-delay-2">
-            <span class="service-row__index">02</span>
+          <li class="row-item reveal reveal-delay-2">
+            <span class="micro row-item__idx">02</span>
             <div>
-              <h3>Android Development</h3>
-              <p>Mobile apps in Java and Kotlin with clear UX, solid structure, and features shaped by coursework and hands-on practice.</p>
+              <h3 class="row-item__title">Android Development</h3>
+              <p class="row-item__text">Mobile apps in Java and Kotlin with clear UX, solid structure, and features shaped by coursework and hands-on practice.</p>
             </div>
           </li>
-          <li class="service-row reveal reveal-delay-3">
-            <span class="service-row__index">03</span>
+          <li class="row-item reveal reveal-delay-3">
+            <span class="micro row-item__idx">03</span>
             <div>
-              <h3>WordPress &amp; Elementor</h3>
-              <p>Business sites and page design with WordPress and Elementor — reusable layouts, easy content updates, and clean presentation.</p>
+              <h3 class="row-item__title">WordPress &amp; Elementor</h3>
+              <p class="row-item__text">Business sites and page design with WordPress and Elementor — reusable layouts, easy content updates, and clean presentation.</p>
             </div>
           </li>
-          <li class="service-row reveal reveal-delay-4">
-            <span class="service-row__index">04</span>
+          <li class="row-item reveal reveal-delay-4">
+            <span class="micro row-item__idx">04</span>
             <div>
-              <h3>IT Support</h3>
-              <p>Hardware and software troubleshooting for PCs and laptops — diagnostics, setup, Windows issues, and practical fixes that get systems running again.</p>
+              <h3 class="row-item__title">IT Support</h3>
+              <p class="row-item__text">Hardware and software troubleshooting for PCs and laptops — diagnostics, setup, Windows issues, and practical fixes.</p>
             </div>
           </li>
         </ul>
-      </div>
-    </section>
+      </section>
 
-    <!-- 02 Projects -->
-    <section id="work" class="section" aria-labelledby="work-heading">
-      <div class="container">
-        <header class="section-head reveal">
-          <h2 id="work-heading" class="section-num">02 — projects</h2>
-        </header>
+      <section id="work" class="section" aria-labelledby="work-heading">
+        <h2 id="work-heading" class="section-label reveal">02 — projects</h2>
         <div id="project-filters" class="filter-bar reveal" role="group" aria-label="Filter projects"></div>
         <div id="work-grid" class="project-list" aria-live="polite"></div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 03 Experience -->
-    <section id="experience" class="section" aria-labelledby="experience-heading">
-      <div class="container">
-        <header class="section-head reveal">
-          <h2 id="experience-heading" class="section-num">03 — experience</h2>
-        </header>
-
-        <article class="exp-entry reveal">
-          <div class="exp-entry__meta">
-            <span class="exp-entry__year">2026</span>
-            <div class="exp-entry__role">
-              <h3>Web Developer Intern</h3>
-              <p class="exp-entry__company">Taaeen — Innovative Human Capital Solutions</p>
-              <p class="exp-entry__dates">January 2026 – May 2026 · 600 hours</p>
+      <section id="experience" class="section" aria-labelledby="experience-heading">
+        <h2 id="experience-heading" class="section-label reveal">03 — experience</h2>
+        <article class="exp reveal">
+          <div class="exp__head">
+            <span class="exp__year">2026</span>
+            <div>
+              <h3 class="exp__role">Web Developer Intern</h3>
+              <p class="exp__company">Taaeen — Innovative Human Capital Solutions</p>
+              <p class="micro exp__dates">Jan 2026 – May 2026 · 600 hours</p>
             </div>
           </div>
-
-          <div class="exp-entry__body">
-            <div class="exp-block">
-              <h4>Core technical stack</h4>
-              <ul>
-                <li><strong>CMS:</strong> WordPress core installation, dashboard management, and database configuration.</li>
-                <li><strong>Page builder:</strong> Elementor Pro for responsive, pixel-perfect UI layouts.</li>
-                <li><strong>Languages:</strong> HTML5, CSS3 for custom styling, and basic JavaScript overrides.</li>
+          <div class="exp__grid">
+            <div class="card">
+              <p class="micro card__label">core stack</p>
+              <ul class="detail-list">
+                <li><strong>CMS</strong> — WordPress core, dashboard, database configuration</li>
+                <li><strong>Builder</strong> — Elementor Pro for responsive UI layouts</li>
+                <li><strong>Languages</strong> — HTML5, CSS3, basic JavaScript overrides</li>
               </ul>
             </div>
-            <div class="exp-block">
-              <h4>Key accomplishments</h4>
-              <ul>
-                <li><strong>Responsive web design:</strong> Built and customized multi-page WordPress business websites across mobile, tablet, and desktop.</li>
-                <li><strong>Elementor theme building:</strong> Designed reusable global headers, footers, single-post layouts, and dynamic archives.</li>
-                <li><strong>Performance:</strong> Optimized spacing, image assets, and section structures for faster loads.</li>
+            <div class="card">
+              <p class="micro card__label">accomplishments</p>
+              <ul class="detail-list">
+                <li><strong>Responsive design</strong> — multi-page WordPress sites across viewports</li>
+                <li><strong>Theme building</strong> — global headers, footers, archives in Elementor</li>
+                <li><strong>Performance</strong> — spacing, assets, and structure for faster loads</li>
               </ul>
             </div>
-            <div class="exp-credential">
-              <h4>Verified credential</h4>
-              <a
-                class="credential-thumb"
-                href="assets/ojt-certificate.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open OJT completion certificate PDF">
-                <img
-                  src="assets/certificate.png"
-                  alt="OJT completion certificate for Mark Tristan Perjes De Villa"
-                  width="480"
-                  height="360"
-                  loading="lazy">
-                <span class="credential-thumb__label">View full certificate →</span>
-              </a>
-            </div>
+          </div>
+          <div class="exp__cert">
+            <p class="micro card__label">verified credential</p>
+            <a class="cert-card" href="assets/ojt-certificate.pdf" target="_blank" rel="noopener noreferrer" aria-label="Open OJT certificate PDF">
+              <img src="assets/certificate.png" alt="OJT completion certificate for Mark Tristan Perjes De Villa" width="480" height="360" loading="lazy">
+              <span class="micro cert-card__cta">view certificate</span>
+            </a>
           </div>
         </article>
-      </div>
-    </section>
+      </section>
 
-    <!-- 04 Stack -->
-    <section id="stack" class="section" aria-labelledby="stack-heading">
-      <div class="container">
-        <header class="section-head reveal">
-          <h2 id="stack-heading" class="section-num">04 — stack</h2>
-        </header>
-        <div class="stack-group reveal reveal-delay-1">
-          <h3 class="stack-group__label">Tech &amp; tools</h3>
-          <div class="skill-list" role="list" aria-label="Technical skills">
-            <span class="skill-tag" role="listitem">JavaScript</span>
-            <span class="skill-tag" role="listitem">Python</span>
-            <span class="skill-tag" role="listitem">Java</span>
-            <span class="skill-tag" role="listitem">C#</span>
-            <span class="skill-tag" role="listitem">React</span>
-            <span class="skill-tag" role="listitem">Node.js</span>
-            <span class="skill-tag" role="listitem">Express.js</span>
-            <span class="skill-tag" role="listitem">FastAPI</span>
-            <span class="skill-tag" role="listitem">Tailwind CSS</span>
-            <span class="skill-tag" role="listitem">Vite</span>
-            <span class="skill-tag" role="listitem">Firebase</span>
-            <span class="skill-tag" role="listitem">Supabase</span>
-            <span class="skill-tag" role="listitem">MySQL</span>
-            <span class="skill-tag" role="listitem">PostgreSQL</span>
-            <span class="skill-tag" role="listitem">WordPress</span>
-            <span class="skill-tag" role="listitem">Elementor</span>
-            <span class="skill-tag" role="listitem">Android Studio</span>
-            <span class="skill-tag" role="listitem">Figma</span>
-            <span class="skill-tag" role="listitem">Hardware Troubleshooting</span>
-            <span class="skill-tag" role="listitem">Software Troubleshooting</span>
+      <section id="stack" class="section" aria-labelledby="stack-heading">
+        <h2 id="stack-heading" class="section-label reveal">04 — stack</h2>
+        <div class="stack-block reveal reveal-delay-1">
+          <p class="micro stack-block__label">tech &amp; tools</p>
+          <div class="pill-list" role="list">
+            <span class="pill" role="listitem">JavaScript</span>
+            <span class="pill" role="listitem">Python</span>
+            <span class="pill" role="listitem">Java</span>
+            <span class="pill" role="listitem">C#</span>
+            <span class="pill" role="listitem">React</span>
+            <span class="pill" role="listitem">Node.js</span>
+            <span class="pill" role="listitem">Express.js</span>
+            <span class="pill" role="listitem">FastAPI</span>
+            <span class="pill" role="listitem">Tailwind CSS</span>
+            <span class="pill" role="listitem">Vite</span>
+            <span class="pill" role="listitem">Firebase</span>
+            <span class="pill" role="listitem">Supabase</span>
+            <span class="pill" role="listitem">MySQL</span>
+            <span class="pill" role="listitem">PostgreSQL</span>
+            <span class="pill" role="listitem">WordPress</span>
+            <span class="pill" role="listitem">Elementor</span>
+            <span class="pill" role="listitem">Android Studio</span>
+            <span class="pill" role="listitem">Figma</span>
+            <span class="pill" role="listitem">Hardware Troubleshooting</span>
+            <span class="pill" role="listitem">Software Troubleshooting</span>
           </div>
         </div>
-        <div class="stack-group reveal reveal-delay-2">
-          <h3 class="stack-group__label">Professional</h3>
-          <div class="skill-list" role="list" aria-label="Professional skills">
-            <span class="skill-tag" role="listitem">Communication</span>
-            <span class="skill-tag" role="listitem">Teamwork</span>
-            <span class="skill-tag" role="listitem">Problem Solving</span>
-            <span class="skill-tag" role="listitem">Critical Thinking</span>
-            <span class="skill-tag" role="listitem">Project Management</span>
-            <span class="skill-tag" role="listitem">Leadership</span>
-            <span class="skill-tag" role="listitem">Adaptability</span>
-            <span class="skill-tag" role="listitem">Attention to Detail</span>
+        <div class="stack-block reveal reveal-delay-2">
+          <p class="micro stack-block__label">professional</p>
+          <div class="pill-list" role="list">
+            <span class="pill" role="listitem">Communication</span>
+            <span class="pill" role="listitem">Teamwork</span>
+            <span class="pill" role="listitem">Problem Solving</span>
+            <span class="pill" role="listitem">Critical Thinking</span>
+            <span class="pill" role="listitem">Project Management</span>
+            <span class="pill" role="listitem">Leadership</span>
+            <span class="pill" role="listitem">Adaptability</span>
+            <span class="pill" role="listitem">Attention to Detail</span>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 05 About -->
-    <section id="about" class="section" aria-labelledby="about-heading">
-      <div class="container">
-        <header class="section-head reveal">
-          <h2 id="about-heading" class="section-num">05 — about</h2>
-        </header>
-        <div class="about-layout">
-          <div class="about-photo reveal">
-            <img src="assets/profile.png" alt="Mark Tristan De Villa" width="400" height="500" loading="lazy">
+      <section id="about" class="section" aria-labelledby="about-heading">
+        <h2 id="about-heading" class="section-label reveal">05 — about</h2>
+        <div class="about">
+          <div class="about__photo reveal">
+            <div class="about__photo-frame">
+              <img src="assets/profile.png" alt="Mark Tristan De Villa" width="400" height="500" loading="lazy">
+              <div class="halftone about__photo-fade" aria-hidden="true"></div>
+            </div>
           </div>
-          <div class="about-copy">
-            <p class="about-text reveal reveal-delay-1">
+          <div class="about__copy">
+            <p class="about__text reveal reveal-delay-1">
               I'm Mark Tristan P. De Villa, a Software Developer and BSIT graduate based in Sariaya, Quezon. I collaborate with teams, solve technical challenges, and ship practical solutions across web, Android, WordPress, and IT support.
             </p>
-            <p class="about-text reveal reveal-delay-2">
+            <p class="about__text reveal reveal-delay-2">
               Open to full-time work and freelance projects where I can keep learning and deliver user-focused products.
             </p>
-            <div class="about-edu reveal reveal-delay-3">
-              <h3>Education</h3>
-              <p class="about-edu__degree">Bachelor of Science in Information Technology</p>
-              <p class="about-edu__school">College of Sciences, Technology and Communications, Inc. (CSTC)</p>
-              <p class="about-edu__meta">Sariaya, Quezon · 2022 – 2026</p>
+            <div class="about__edu reveal reveal-delay-3">
+              <p class="micro">education</p>
+              <h3>Bachelor of Science in Information Technology</h3>
+              <p class="about__school">College of Sciences, Technology and Communications, Inc. (CSTC)</p>
+              <p class="micro">Sariaya, Quezon · 2022 – 2026</p>
             </div>
-            <p class="about-actions reveal reveal-delay-4">
-              <a href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin ↗</a>
+            <p class="about__links reveal reveal-delay-4">
+              <a class="ext" href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
             </p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 06 Contact -->
-    <section id="contact" class="section section--contact" aria-labelledby="contact-heading">
-      <div class="container">
-        <header class="section-head reveal">
-          <h2 id="contact-heading" class="section-num">06 — contact</h2>
-        </header>
+      <section id="contact" class="section section--contact" aria-labelledby="contact-heading">
+        <h2 id="contact-heading" class="section-label reveal">06 — contact</h2>
         <p class="contact-lead reveal reveal-delay-1">
           For work, freelance projects &amp; everything else, reach me at
         </p>
         <div class="contact-list reveal reveal-delay-2">
-          <a href="mailto:devillamarktristan@gmail.com">devillamarktristan@gmail.com</a>
-          <a href="tel:+639955095686">+63 995 509 5686</a>
-          <a href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin ↗</a>
-          <a href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github ↗</a>
+          <a class="ext" href="mailto:devillamarktristan@gmail.com">devillamarktristan@gmail.com</a>
+          <a class="ext" href="tel:+639955095686">+63 995 509 5686</a>
+          <a class="ext" href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
+          <a class="ext" href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github</a>
         </div>
-      </div>
-    </section>
+      </section>
 
-  </main>
+    </main>
 
-  <footer class="site-footer">
-    <div class="container site-footer__inner">
-      <p>© <span id="year"></span> Mark Tristan De Villa</p>
-    </div>
-  </footer>
+    <footer class="site-footer">
+      <p class="micro">© <span id="year-footer"></span> Mark Tristan De Villa</p>
+    </footer>
+  </div>
 
   <script src="js/projects.js"></script>
   <script src="js/main.js"></script>
