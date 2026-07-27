@@ -560,33 +560,32 @@ main {
   margin-bottom: 0;
 }
 
-/* GitHub */
-.gh-card {
-  padding: 1.25rem;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
-  background: var(--gray-50);
-  box-shadow: var(--shadow-card);
-}
-
-.gh-card__label {
-  margin-bottom: 0.85rem;
-}
-
-.gh-chart-link {
-  display: block;
-  overflow-x: auto;
+/* GitHub circle chart */
+.gh-wrap {
+  width: 100%;
 }
 
 .gh-chart {
   width: 100%;
-  min-width: 520px;
-  height: auto;
-  image-rendering: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  color: var(--ink);
 }
 
-.gh-card__note {
-  margin-top: 0.85rem;
+.gh-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 560px;
+}
+
+.gh-chart circle {
+  transition: r 0.2s ease, opacity 0.2s ease;
+}
+
+.gh-total {
+  margin-top: 0.9rem;
+  color: var(--gray-400);
 }
 
 /* View Transitions — droplet circle */

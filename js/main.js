@@ -31,11 +31,90 @@
     return mode;
   }
 
-  function updateGhChart(resolved) {
-    const chart = document.getElementById('gh-chart');
-    if (!chart) return;
-    const color = resolved === 'dark' ? '8a8a92' : '525252';
-    chart.src = `https://ghchart.rshah.org/${color}/Tannntannn`;
+  function padWeeks(days) {
+    // Align to weeks starting Sunday like GitHub
+    const out = days.slice();
+    if (!out.length) return out;
+    const first = new Date(out[0].date + 'T00:00:00');
+    const lead = first.getDay(); // 0 Sun
+    for (let i = 0; i < lead; i += 1) {
+      out.unshift({ date: '', count: 0, level: 0, empty: true });
+    }
+    while (out.length % 7 !== 0) {
+      out.push({ date: '', count: 0, level: 0, empty: true });
+    }
+    return out;
+  }
+
+  function renderGhChart(days) {
+    const host = document.getElementById('gh-chart');
+    const totalEl = document.getElementById('gh-total');
+    if (!host) return;
+
+    const padded = padWeeks(days);
+    const weeks = padded.length / 7;
+    const cell = 12;
+    const pad = 2;
+    const width = weeks * cell;
+    const height = 7 * cell;
+
+    // Level → radius (halftone circle size) and opacity
+    const radiusFor = (level) => {
+      if (level <= 0) return 1.1;
+      if (level === 1) return 2.2;
+      if (level === 2) return 3.2;
+      if (level === 3) return 4.1;
+      return 5.0;
+    };
+    const opacityFor = (level) => {
+      if (level <= 0) return 0.22;
+      if (level === 1) return 0.45;
+      if (level === 2) return 0.65;
+      if (level === 3) return 0.85;
+      return 1;
+    };
+
+    let circles = '';
+    for (let i = 0; i < padded.length; i += 1) {
+      const day = padded[i];
+      const week = Math.floor(i / 7);
+      const dow = i % 7;
+      const cx = week * cell + cell / 2;
+      const cy = dow * cell + cell / 2;
+      const level = day.level || 0;
+      const r = radiusFor(level);
+      const op = opacityFor(level);
+      const title = day.date
+        ? `${day.count} contribution${day.count === 1 ? '' : 's'} on ${day.date}`
+        : '';
+      circles += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="currentColor" opacity="${op}"><title>${title}</title></circle>`;
+    }
+
+    host.innerHTML = `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="presentation" aria-hidden="true">${circles}</svg>`;
+
+    const total = days.reduce((sum, d) => sum + (d.count || 0), 0);
+    if (totalEl) {
+      totalEl.textContent = `${total.toLocaleString()} contributions in the last year`;
+    }
+  }
+
+  async function initGhChart() {
+    const host = document.getElementById('gh-chart');
+    const totalEl = document.getElementById('gh-total');
+    if (!host) return;
+
+    try {
+      const res = await fetch('https://github-contributions-api.jogruber.de/v4/Tannntannn?y=last');
+      if (!res.ok) throw new Error('fetch failed');
+      const data = await res.json();
+      const days = Array.isArray(data.contributions) ? data.contributions : [];
+      renderGhChart(days);
+    } catch (err) {
+      if (totalEl) {
+        totalEl.innerHTML = 'Could not load chart — <a class="ext" href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">view on GitHub</a>';
+      }
+      host.innerHTML = '';
+    }
   }
 
   function setThemeMode(mode) {
@@ -52,7 +131,6 @@
     const aria = `Theme: ${label}. Click to cycle.`;
     themeToggle?.setAttribute('aria-label', aria);
     themeToggleMobile?.setAttribute('aria-label', aria);
-    updateGhChart(resolved);
   }
 
   function nextThemeMode() {
@@ -287,6 +365,7 @@
     initReveal();
     initProjectFilters();
     renderProjects();
+    initGhChart();
     const y = String(new Date().getFullYear());
     if (yearEl) yearEl.textContent = y;
     if (yearFooter) yearFooter.textContent = y;
