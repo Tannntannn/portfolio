@@ -4,9 +4,7 @@
   const html = document.documentElement;
   const mobileMenu = document.getElementById('mobile-menu');
   const menuToggle = document.getElementById('menu-toggle');
-  const themeToggle = document.getElementById('theme-toggle');
   const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-  const themeLabel = document.getElementById('theme-label');
   const workGrid = document.getElementById('work-grid');
   const filterBar = document.getElementById('project-filters');
   const yearEl = document.getElementById('year');
@@ -117,49 +115,31 @@
     }
   }
 
-  function setThemeMode(mode) {
+  function setThemeMode(mode, event) {
     if (mode === 'system') localStorage.removeItem('theme');
     else localStorage.setItem('theme', mode);
 
-    const resolved = resolveThemeFromMode(mode);
-    html.classList.toggle('dark', resolved === 'dark');
-    html.dataset.theme = resolved;
+    const apply = () => {
+      const resolved = resolveThemeFromMode(mode);
+      html.classList.toggle('dark', resolved === 'dark');
+      html.dataset.theme = resolved;
+      syncThemeButtons(mode === 'system' || !mode ? 'system' : mode);
+    };
 
-    const label = getStoredTheme() ? resolved : 'system';
-    if (themeLabel) themeLabel.textContent = label;
-
-    const aria = `Theme: ${label}. Click to cycle.`;
-    themeToggle?.setAttribute('aria-label', aria);
-    themeToggleMobile?.setAttribute('aria-label', aria);
-  }
-
-  function nextThemeMode() {
-    const stored = getStoredTheme();
-    if (!stored) return 'light';
-    if (stored === 'light') return 'dark';
-    return 'system';
-  }
-
-  function dropletThemeSwitch(event) {
-    const next = nextThemeMode();
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (!document.startViewTransition || reduced) {
-      setThemeMode(next);
+    if (!event || !document.startViewTransition || reduced) {
+      apply();
       return;
     }
 
-    const x = event?.clientX ?? window.innerWidth / 2;
-    const y = event?.clientY ?? window.innerHeight / 2;
+    const x = event.clientX ?? window.innerWidth / 2;
+    const y = event.clientY ?? window.innerHeight / 2;
     const endRadius = Math.hypot(
       Math.max(x, window.innerWidth - x),
       Math.max(y, window.innerHeight - y)
     );
 
-    const transition = document.startViewTransition(() => {
-      setThemeMode(next);
-    });
-
+    const transition = document.startViewTransition(apply);
     transition.ready.then(() => {
       document.documentElement.animate(
         {
@@ -177,12 +157,40 @@
     }).catch(() => {});
   }
 
+  function syncThemeButtons(mode) {
+    document.querySelectorAll('[data-theme-opt]').forEach((btn) => {
+      btn.classList.toggle('is-active', btn.dataset.themeOpt === mode);
+    });
+
+    if (themeToggleMobile) {
+      const resolved = resolveThemeFromMode(mode === 'system' ? null : mode);
+      themeToggleMobile.setAttribute(
+        'aria-label',
+        `Theme: ${mode === 'system' ? 'system' : resolved}. Click to cycle.`
+      );
+    }
+  }
+
+  function nextThemeMode() {
+    const stored = getStoredTheme();
+    if (!stored) return 'light';
+    if (stored === 'light') return 'dark';
+    return 'system';
+  }
+
   function initTheme() {
     const stored = getStoredTheme();
     setThemeMode(stored || 'system');
 
-    themeToggle?.addEventListener('click', dropletThemeSwitch);
-    themeToggleMobile?.addEventListener('click', dropletThemeSwitch);
+    document.querySelectorAll('[data-theme-opt]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        setThemeMode(btn.dataset.themeOpt, event);
+      });
+    });
+
+    themeToggleMobile?.addEventListener('click', (event) => {
+      setThemeMode(nextThemeMode(), event);
+    });
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       if (!getStoredTheme()) setThemeMode('system');

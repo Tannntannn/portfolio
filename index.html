@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Mark Tristan De Villa — Software Developer. BSIT graduate skilled in web, Android, React, WordPress, and Elementor.">
+  <meta name="description" content="Mark Tristan De Villa — Software Developer. Building modern web systems, Android apps, WordPress sites, and IT support solutions.">
   <meta name="author" content="Mark Tristan De Villa">
   <meta name="color-scheme" content="light dark">
   <meta property="og:title" content="Mark Tristan De Villa — Software Developer">
@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=gh2">
+  <link rel="stylesheet" href="css/styles.css?v=theme3">
 
   <script>
     (function () {
@@ -42,10 +42,27 @@
       <a href="#contact" class="nav-link" data-section="contact">contact</a>
     </nav>
     <div class="sidebar__foot">
-      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-        <span class="theme-toggle__label">theme</span>
-        <span class="theme-toggle__value" id="theme-label">system</span>
-      </button>
+      <div class="theme-bar">
+        <div class="theme-switch" role="group" aria-label="Theme">
+          <button type="button" class="theme-opt" data-theme-opt="system" title="System" aria-label="System theme">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 21h6M12 17v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </button>
+          <button type="button" class="theme-opt" data-theme-opt="light" title="Light" aria-label="Light theme">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </button>
+          <button type="button" class="theme-opt" data-theme-opt="dark" title="Dark" aria-label="Dark theme">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 13.6A8 8 0 1 1 10.4 4a6.2 6.2 0 0 0 9.6 9.6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <button type="button" class="sound-toggle" data-sound-toggle data-cuelume-silent aria-pressed="false" aria-label="Enable interface sounds" title="Sounds off">
+          <svg data-sound-on class="sound-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden>
+            <path d="M5 10v4h3l4 3V7L8 10H5zM16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg data-sound-off class="sound-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 10v4h3l4 3V7L8 10H5zM16 10l4 4M20 10l-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
       <p class="sidebar__copy">© <span id="year"></span></p>
     </div>
   </aside>
@@ -53,9 +70,17 @@
   <header id="site-header" class="topbar">
     <a href="#hero" class="topbar__brand">mark tristan</a>
     <div class="topbar__actions">
-      <button type="button" id="theme-toggle-mobile" class="icon-btn" aria-label="Toggle theme">
+      <button type="button" id="theme-toggle-mobile" class="icon-btn" data-theme-cycle aria-label="Cycle theme">
         <svg class="theme-icon--moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
         <svg class="theme-icon--sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+      </button>
+      <button type="button" class="icon-btn sound-toggle" data-sound-toggle data-cuelume-silent aria-pressed="false" aria-label="Enable interface sounds" title="Sounds off">
+        <svg data-sound-on class="sound-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden>
+          <path d="M5 10v4h3l4 3V7L8 10H5zM16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg data-sound-off class="sound-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 10v4h3l4 3V7L8 10H5zM16 10l4 4M20 10l-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </button>
       <button type="button" id="menu-toggle" class="icon-btn" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -91,12 +116,16 @@
               I'm a software developer. I build modern web systems, Android apps, and WordPress sites — and I handle IT support when systems need fixing.
             </p>
             <p class="hero__lead reveal reveal-delay-2">
-              BSIT graduate based in Sariaya, Quezon. Open to full-time work and freelance projects.
+              Based in Sariaya, Quezon. I turn rough ideas into clean, working products — open to full-time work and freelance.
             </p>
             <div class="hero__links reveal reveal-delay-3">
               <a href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github</a>
               <span class="hero__sep" aria-hidden="true">/</span>
               <a href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
+              <span class="hero__sep" aria-hidden="true">/</span>
+              <a href="https://www.facebook.com/marktristandevilla" target="_blank" rel="noopener noreferrer">facebook</a>
+              <span class="hero__sep" aria-hidden="true">/</span>
+              <a href="https://www.instagram.com/trisssttt_" target="_blank" rel="noopener noreferrer">instagram</a>
               <span class="hero__sep" aria-hidden="true">/</span>
               <a href="mailto:devillamarktristan@gmail.com">email</a>
             </div>
@@ -105,19 +134,19 @@
         <div class="stat-grid reveal reveal-delay-4">
           <div class="stat-cell">
             <p class="stat-value">5</p>
-            <p class="micro">projects</p>
+            <p class="micro">shipped</p>
           </div>
           <div class="stat-cell">
-            <p class="stat-value">600</p>
-            <p class="micro">ojt hours</p>
+            <p class="stat-value">4</p>
+            <p class="micro">services</p>
           </div>
           <div class="stat-cell">
-            <p class="stat-value">BSIT</p>
-            <p class="micro">2026 grad</p>
+            <p class="stat-value">Web</p>
+            <p class="micro">+ android</p>
           </div>
           <div class="stat-cell">
-            <p class="stat-value">CSTC</p>
-            <p class="micro">education</p>
+            <p class="stat-value">Open</p>
+            <p class="micro">for work</p>
           </div>
         </div>
       </section>
@@ -170,7 +199,7 @@
             <div>
               <h3 class="exp__role">Web Developer Intern</h3>
               <p class="exp__company">Taaeen — Innovative Human Capital Solutions</p>
-              <p class="micro exp__dates">Jan 2026 – May 2026 · 600 hours</p>
+              <p class="micro exp__dates">Jan 2026 – May 2026</p>
             </div>
           </div>
           <div class="exp__grid">
@@ -257,13 +286,18 @@
       <section id="contact" class="section section--contact" aria-labelledby="contact-heading">
         <h2 id="contact-heading" class="section-label reveal">06 — contact</h2>
         <p class="contact-lead reveal reveal-delay-1">
-          For work, freelance projects &amp; everything else, reach me at
+          Change it &amp; design.
+        </p>
+        <p class="contact-sub reveal reveal-delay-1">
+          For work, freelance, or just to say hi — reach me at
         </p>
         <div class="contact-list reveal reveal-delay-2">
           <a class="ext" href="mailto:devillamarktristan@gmail.com">devillamarktristan@gmail.com</a>
           <a class="ext" href="tel:+639955095686">+63 995 509 5686</a>
           <a class="ext" href="https://www.linkedin.com/in/mark-tristan-de-villa-4a4133308/" target="_blank" rel="noopener noreferrer">linkedin</a>
           <a class="ext" href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">github</a>
+          <a class="ext" href="https://www.facebook.com/marktristandevilla" target="_blank" rel="noopener noreferrer">facebook</a>
+          <a class="ext" href="https://www.instagram.com/trisssttt_" target="_blank" rel="noopener noreferrer">instagram</a>
         </div>
       </section>
 
@@ -274,7 +308,8 @@
     </footer>
   </div>
 
-  <script src="js/projects.js?v=gh2"></script>
-  <script src="js/main.js?v=gh2"></script>
+  <script src="js/site-sounds.js"></script>
+  <script src="js/projects.js?v=theme3"></script>
+  <script src="js/main.js?v=theme3"></script>
 </body>
 </html>
