@@ -298,44 +298,54 @@
     }
 
     workGrid.innerHTML = filtered
-      .map((p) => {
+      .map((p, index) => {
         const hasUrl = Boolean(p.url);
         const title = escapeHtml(p.title);
-        const desc = escapeHtml(p.desc);
+        const blurb = escapeHtml(p.blurb || p.desc);
         const year = escapeHtml(p.year);
         const img = escapeHtml(p.img);
+        const cat = escapeHtml(p.categoryLabel || p.category);
         const url = hasUrl ? escapeHtml(p.url) : '';
+        const idx = String(index + 1).padStart(2, '0');
+        const flip = index % 2 === 1 ? ' project--flip' : '';
+
+        const shotInner = `
+          <div class="project__chrome" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="project__frame">
+            <img src="${img}" alt="" loading="lazy" width="960" height="600">
+          </div>`;
 
         const media = hasUrl
-          ? `<a href="${url}" class="project-card__media" target="_blank" rel="noopener noreferrer" aria-label="Open ${title}"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></a>`
-          : `<div class="project-card__media"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></div>`;
+          ? `<a href="${url}" class="project__shot" target="_blank" rel="noopener noreferrer" aria-label="Open ${title}">${shotInner}</a>`
+          : `<div class="project__shot" role="img" aria-label="${title}">${shotInner}</div>`;
 
         const titleBlock = hasUrl
-          ? `<a href="${url}" class="project-card__title" target="_blank" rel="noopener noreferrer">${title}</a>`
-          : `<h3 class="project-card__title">${title}</h3>`;
+          ? `<a href="${url}" class="project__title" target="_blank" rel="noopener noreferrer">${title}</a>`
+          : `<h3 class="project__title">${title}</h3>`;
 
         const action = hasUrl
-          ? `<a href="${url}" class="link-mono" target="_blank" rel="noopener noreferrer">visit ↗</a>`
-          : `<span class="link-mono link-mono--static">android app</span>`;
+          ? `<a href="${url}" class="project__cta" target="_blank" rel="noopener noreferrer">visit ↗</a>`
+          : `<span class="project__cta project__cta--static">android app</span>`;
 
-        const tags = p.tags
-          .map(
-            (tag, i) =>
-              `<span class="tag ${i === 0 ? 'tag--accent' : ''}">${escapeHtml(tag)}</span>`
-          )
-          .join('');
+        const tags = p.tags.map((tag) => escapeHtml(tag)).join('<span aria-hidden="true"> · </span>');
 
         return `
-      <article class="project-card reveal">
+      <article class="project${flip} reveal">
         ${media}
-        <div>
+        <div class="project__body">
+          <div class="project__meta">
+            <span>${idx}</span>
+            <span>${cat}</span>
+            <span>${year}</span>
+          </div>
           ${titleBlock}
-          <p class="project-card__desc">${desc}</p>
-          <div class="tag-list">${tags}</div>
-        </div>
-        <div class="project-card__aside">
-          <span class="project-card__year">${year}</span>
-          ${action}
+          <p class="project__blurb">${blurb}</p>
+          <div class="project__foot">
+            <p class="project__tags">${tags}</p>
+            ${action}
+          </div>
         </div>
       </article>`;
       })
@@ -350,14 +360,14 @@
     filterBar.innerHTML = PROJECT_FILTERS.map((f) => {
       const count = countProjectsForCategory(f.value);
       const isActive = f.value === 'all';
-      return `<button type="button" class="filter-chip ${isActive ? 'is-active' : ''}" data-filter="${f.value}" aria-pressed="${isActive ? 'true' : 'false'}">${escapeHtml(f.label)} (${count})</button>`;
+      return `<button type="button" class="filter-tab ${isActive ? 'is-active' : ''}" data-filter="${f.value}" aria-pressed="${isActive ? 'true' : 'false'}">${escapeHtml(f.label)} <span class="filter-tab__count">${count}</span></button>`;
     }).join('');
 
     filterBar.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-filter]');
       if (!btn) return;
       activeFilter = btn.dataset.filter;
-      filterBar.querySelectorAll('.filter-chip').forEach((chip) => {
+      filterBar.querySelectorAll('.filter-tab').forEach((chip) => {
         const match = chip.dataset.filter === activeFilter;
         chip.classList.toggle('is-active', match);
         chip.setAttribute('aria-pressed', match ? 'true' : 'false');
