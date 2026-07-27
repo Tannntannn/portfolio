@@ -17,18 +17,20 @@
     return PROJECTS.filter((p) => p.category === categoryValue).length;
   }
 
-  /* ── Theme ── */
   function getPreferredTheme() {
     const stored = localStorage.getItem('theme');
     if (stored === 'dark' || stored === 'light') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'dark';
   }
 
   function applyTheme(theme) {
     html.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('theme', theme);
     if (themeToggle) {
-      themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      themeToggle.setAttribute(
+        'aria-label',
+        theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+      );
     }
   }
 
@@ -39,7 +41,6 @@
     });
   }
 
-  /* ── Mobile menu ── */
   function setMenuOpen(open) {
     if (!mobileMenu || !menuToggle) return;
     mobileMenu.hidden = !open;
@@ -61,23 +62,21 @@
     });
   }
 
-  /* ── Header scroll state ── */
   function initHeaderScroll() {
     const onScroll = () => {
-      header?.classList.toggle('is-scrolled', window.scrollY > 20);
+      header?.classList.toggle('is-scrolled', window.scrollY > 16);
       updateActiveNav();
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
 
-  /* ── Scroll spy ── */
   function updateActiveNav() {
     const links = document.querySelectorAll('.nav-link[data-section]');
-    // Bottom-to-top DOM order so the deepest visible section wins
-    const sections = ['contact', 'about', 'work', 'experience', 'services', 'hero'];
-    const offset = 130;
-    const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
+    const sections = ['contact', 'about', 'stack', 'experience', 'work', 'services', 'hero'];
+    const offset = 120;
+    const atBottom =
+      window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
 
     let current = 'hero';
     if (atBottom) {
@@ -100,8 +99,14 @@
     });
   }
 
-  /* ── Reveal on scroll ── */
-  function initReveal() {
+  function observeReveal(el) {
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (inView) {
+      requestAnimationFrame(() => el.classList.add('is-visible'));
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -111,13 +116,23 @@
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.08, rootMargin: '0px 0px -24px 0px' }
     );
-
-    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    observer.observe(el);
   }
 
-  /* ── Projects ── */
+  function initReveal() {
+    document.querySelectorAll('.reveal').forEach(observeReveal);
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   function renderProjects() {
     if (!workGrid || typeof PROJECTS === 'undefined') return;
 
@@ -135,60 +150,48 @@
     workGrid.innerHTML = filtered
       .map((p) => {
         const hasUrl = Boolean(p.url);
-        const imageBlock = hasUrl
-          ? `<a href="${p.url}" class="project-card__image" target="_blank" rel="noopener noreferrer" aria-label="Open ${p.title}"><img src="${p.img}" alt="${p.title}" loading="lazy" width="600" height="340"></a>`
-          : `<div class="project-card__image"><img src="${p.img}" alt="${p.title}" loading="lazy" width="600" height="340"></div>`;
+        const title = escapeHtml(p.title);
+        const desc = escapeHtml(p.desc);
+        const year = escapeHtml(p.year);
+        const img = escapeHtml(p.img);
+        const url = hasUrl ? escapeHtml(p.url) : '';
+
+        const media = hasUrl
+          ? `<a href="${url}" class="project-row__media" target="_blank" rel="noopener noreferrer" aria-label="Open ${title}"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></a>`
+          : `<div class="project-row__media"><img src="${img}" alt="${title}" loading="lazy" width="400" height="250"></div>`;
+
         const titleBlock = hasUrl
-          ? `<a href="${p.url}" class="project-card__title" target="_blank" rel="noopener noreferrer">${p.title}</a>`
-          : `<h3 class="project-card__title">${p.title}</h3>`;
-        const actionBlock = hasUrl
-          ? `<a href="${p.url}" class="link-arrow" target="_blank" rel="noopener noreferrer">Visit live site →</a>`
+          ? `<a href="${url}" class="project-row__title" target="_blank" rel="noopener noreferrer">${title}</a>`
+          : `<h3 class="project-row__title">${title}</h3>`;
+
+        const action = hasUrl
+          ? `<a href="${url}" class="link-arrow" target="_blank" rel="noopener noreferrer">visit ↗</a>`
           : `<span class="link-arrow link-arrow--static">Android app</span>`;
 
+        const tags = p.tags
+          .map(
+            (tag, i) =>
+              `<span class="tag ${i === 0 ? 'tag--accent' : ''}">${escapeHtml(tag)}</span>`
+          )
+          .join('');
+
         return `
-      <article class="project-card reveal">
-        ${imageBlock}
-        <div class="project-card__body">
-          <div class="tag-list">
-            ${p.tags
-              .map(
-                (tag, i) =>
-                  `<span class="tag ${i === 0 ? 'tag--accent' : ''}">${tag}</span>`
-              )
-              .join('')}
-          </div>
+      <article class="project-row reveal">
+        ${media}
+        <div class="project-row__body">
           ${titleBlock}
-          <p class="project-card__desc">${p.desc}</p>
-          <div class="project-card__footer">
-            ${actionBlock}
-            <span class="project-card__year">${p.year}</span>
-          </div>
+          <p class="project-row__desc">${desc}</p>
+          <div class="tag-list">${tags}</div>
+        </div>
+        <div class="project-row__aside">
+          <span class="project-row__year">${year}</span>
+          ${action}
         </div>
       </article>`;
       })
       .join('');
 
-    workGrid.querySelectorAll('.reveal').forEach((el) => {
-      const rect = el.getBoundingClientRect();
-      const inView = rect.top < window.innerHeight && rect.bottom > 0;
-      if (inView) {
-        requestAnimationFrame(() => el.classList.add('is-visible'));
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-visible');
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
-      );
-      observer.observe(el);
-    });
+    workGrid.querySelectorAll('.reveal').forEach(observeReveal);
   }
 
   function initProjectFilters() {
@@ -196,9 +199,8 @@
 
     filterBar.innerHTML = PROJECT_FILTERS.map((f) => {
       const count = countProjectsForCategory(f.value);
-      const label = f.value === 'all' ? `${f.label} (${count})` : `${f.label} (${count})`;
       const isActive = f.value === 'all';
-      return `<button type="button" class="filter-chip ${isActive ? 'is-active' : ''}" data-filter="${f.value}" aria-pressed="${isActive ? 'true' : 'false'}">${label}</button>`;
+      return `<button type="button" class="filter-chip ${isActive ? 'is-active' : ''}" data-filter="${f.value}" aria-pressed="${isActive ? 'true' : 'false'}">${escapeHtml(f.label)} (${count})</button>`;
     }).join('');
 
     filterBar.addEventListener('click', (e) => {
@@ -214,42 +216,6 @@
     });
   }
 
-  /* ── Parallax ── */
-  function initParallax() {
-    const layers = Array.from(document.querySelectorAll('[data-parallax]'));
-    if (!layers.length) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    let ticking = false;
-
-    const update = () => {
-      const scrollY = window.scrollY || 0;
-      const viewMid = window.innerHeight * 0.5;
-
-      layers.forEach((el) => {
-        const speed = parseFloat(el.dataset.parallax) || 0;
-        const rect = el.getBoundingClientRect();
-        const elMid = rect.top + rect.height * 0.5;
-        const distance = elMid - viewMid;
-        const y = distance * speed * -0.35 + scrollY * speed * 0.15;
-        el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
-      });
-      ticking = false;
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(update);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    update();
-  }
-
-  /* ── Init ── */
   function init() {
     initTheme();
     initMobileMenu();
@@ -257,7 +223,6 @@
     initReveal();
     initProjectFilters();
     renderProjects();
-    initParallax();
     if (yearEl) yearEl.textContent = new Date().getFullYear();
   }
 

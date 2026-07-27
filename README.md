@@ -1,8 +1,12 @@
 # Mark Tristan De Villa — Portfolio
 
-Personal portfolio of **Mark Tristan De Villa**, Software Developer (BSIT).
+Editorial single-page portfolio inspired by a clean numbered-section layout.
 
 **Live site:** https://tannntannn.github.io/portfolio/
+
+## Sections
+
+01 Services · 02 Projects · 03 Experience · 04 Stack · 05 About · 06 Contact
 
 ## Featured work
 
