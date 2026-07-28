@@ -395,9 +395,11 @@
     let running = false;
     let scrollP = 0;
     let pointer = { x: 0.5, y: 0.5, active: false };
+    let wakeStrength = 0; // 0–1, fades after touch ends (mobile-friendly)
     let ink = { r: 10, g: 10, b: 10 };
     let isDark = true;
     let time = 0;
+    let ripples = []; // tap ripples for mobile
 
     function readTheme() {
       isDark = document.documentElement.classList.contains('dark')
@@ -488,27 +490,51 @@
       scrollP = scrollProgress();
       ctx.clearRect(0, 0, width, height);
 
+      // Smooth wake fade — works after finger lifts on mobile
+      const targetWake = pointer.active ? 1 : 0;
+      wakeStrength += (targetWake - wakeStrength) * (pointer.active ? 0.35 : 0.06);
+
+      // Scroll ambient focus so mobile still feels alive without touch
+      const ambientX = 0.5 + Math.sin(scrollP * Math.PI * 2) * 0.12;
+      const ambientY = 0.35 + scrollP * 0.3;
+      const usePointer = wakeStrength > 0.02;
+      const focusX = usePointer ? pointer.x : ambientX;
+      const focusY = usePointer ? pointer.y : ambientY;
+      const focusMul = usePointer ? wakeStrength : 0.35 + scrollP * 0.25;
+
       const density = (0.62 + scrollP * 0.5) * themeMul();
       const speed = 0.4 + scrollP * 0.65;
-      const wake = finePointer.matches && pointer.active;
-      const px = pointer.x * width;
-      const py = pointer.y * height;
-      const wakeR = 120 + scrollP * 50;
+      const px = focusX * width;
+      const py = focusY * height;
+      const wakeR = (finePointer.matches ? 120 : 150) + scrollP * 50;
 
-      // Soft cursor aura (interactive without being loud)
-      if (wake) {
+      if (focusMul > 0.05) {
         const aura = ctx.createRadialGradient(px, py, 0, px, py, wakeR);
-        const auraA = (isDark ? 0.045 : 0.028) * (0.7 + scrollP * 0.4);
+        const auraA = (isDark ? 0.05 : 0.03) * focusMul * (0.7 + scrollP * 0.4);
         aura.addColorStop(0, `rgba(${ink.r},${ink.g},${ink.b},${auraA})`);
         aura.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = aura;
         ctx.fillRect(px - wakeR, py - wakeR, wakeR * 2, wakeR * 2);
       }
 
+      // Tap ripples (mobile)
+      ripples = ripples.filter((r) => {
+        r.life += 0.016;
+        if (r.life > 1) return false;
+        const radius = 20 + r.life * 110;
+        const a = (1 - r.life) * (isDark ? 0.18 : 0.1) * themeMul();
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${a})`;
+        ctx.lineWidth = 1.2 * (1 - r.life);
+        ctx.arc(r.x * width, r.y * height, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        return true;
+      });
+
       const pull = {
-        far: 5 + scrollP * 5,
-        mid: 10 + scrollP * 10,
-        near: 18 + scrollP * 16,
+        far: (5 + scrollP * 5) * focusMul,
+        mid: (10 + scrollP * 10) * focusMul,
+        near: (18 + scrollP * 16) * focusMul,
       };
 
       const drawn = [];
@@ -520,13 +546,8 @@
         if (s.x < -0.02) s.x = 1.02;
         if (s.x > 1.02) s.x = -0.02;
 
-        let ox = 0;
-        let oy = 0;
-        if (wake) {
-          ox = (pointer.x - 0.5) * pull[s.layer];
-          oy = (pointer.y - 0.5) * pull[s.layer];
-        }
-
+        const ox = (focusX - 0.5) * pull[s.layer];
+        const oy = (focusY - 0.5) * pull[s.layer];
         const x = s.x * width + ox;
         const y = s.y * height + oy;
         let alpha = s.base * density;
@@ -535,13 +556,21 @@
           alpha *= 0.9 + 0.1 * Math.sin(time * (0.6 + scrollP * 0.4) + s.tw);
         }
 
-        if (wake) {
-          const d = Math.hypot(x - px, y - py);
-          if (d < wakeR) {
-            alpha *= 1 + (1 - d / wakeR) * 0.55;
-            drawn.push({ x, y, d, layer: s.layer });
-          }
+        const d = Math.hypot(x - px, y - py);
+        if (d < wakeR && focusMul > 0.05) {
+          alpha *= 1 + (1 - d / wakeR) * 0.55 * focusMul;
+          if (focusMul > 0.25) drawn.push({ x, y, d });
         }
+
+        ripples.forEach((r) => {
+          const rx = r.x * width;
+          const ry = r.y * height;
+          const rd = Math.hypot(x - rx, y - ry);
+          const wave = 20 + r.life * 110;
+          if (Math.abs(rd - wave) < 28) {
+            alpha *= 1 + (1 - r.life) * 0.7;
+          }
+        });
 
         alpha = Math.min(isDark ? 0.42 : 0.2, alpha);
         ctx.beginPath();
@@ -550,8 +579,7 @@
         ctx.fill();
       });
 
-      // Tiny constellation lines near the cursor
-      if (wake && drawn.length > 1) {
+      if (focusMul > 0.35 && drawn.length > 1) {
         drawn.sort((a, b) => a.d - b.d);
         const near = drawn.slice(0, 8);
         ctx.lineWidth = 0.6;
@@ -561,7 +589,7 @@
             const b = near[j];
             const dist = Math.hypot(a.x - b.x, a.y - b.y);
             if (dist > 90) continue;
-            const lineA = (isDark ? 0.1 : 0.05) * (1 - dist / 90);
+            const lineA = (isDark ? 0.1 : 0.05) * (1 - dist / 90) * focusMul;
             ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${lineA})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -585,14 +613,26 @@
       if (raf) cancelAnimationFrame(raf);
     }
 
-    function onPointer(e) {
-      if (!finePointer.matches) return;
+    function setPointerFromEvent(e) {
       pointer.x = e.clientX / Math.max(1, width);
       pointer.y = e.clientY / Math.max(1, height);
+    }
+
+    function onPointerMove(e) {
+      setPointerFromEvent(e);
       pointer.active = true;
     }
 
-    function onLeave() {
+    function onPointerDown(e) {
+      setPointerFromEvent(e);
+      pointer.active = true;
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        ripples.push({ x: pointer.x, y: pointer.y, life: 0 });
+        if (ripples.length > 4) ripples.shift();
+      }
+    }
+
+    function onPointerUp() {
       pointer.active = false;
     }
 
@@ -603,8 +643,11 @@
       scrollP = scrollProgress();
       if (reducedMotion.matches) drawStatic();
     }, { passive: true });
-    window.addEventListener('pointermove', onPointer, { passive: true });
-    window.addEventListener('pointerleave', onLeave, { passive: true });
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointercancel', onPointerUp, { passive: true });
+    window.addEventListener('pointerleave', onPointerUp, { passive: true });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stop();
       else if (!reducedMotion.matches) start();
