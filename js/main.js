@@ -326,7 +326,7 @@
           : `<h3 class="project__title">${title}</h3>`;
 
         const action = hasUrl
-          ? `<a href="${url}" class="project__cta" target="_blank" rel="noopener noreferrer">visit ↗</a>`
+          ? `<a href="${url}" class="project__cta" target="_blank" rel="noopener noreferrer">${/github\.com/i.test(p.url) ? 'repo ↗' : 'visit ↗'}</a>`
           : `<span class="project__cta project__cta--static">android app</span>`;
 
         const tags = p.tags.map((tag) => escapeHtml(tag)).join('<span aria-hidden="true"> · </span>');

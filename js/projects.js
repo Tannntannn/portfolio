@@ -57,7 +57,7 @@ const PROJECTS = [
     blurb: 'Gamified Android app for learning Java through lessons, quizzes, and challenges.',
     desc: 'Gamified Android app for Java fundamentals — interactive lessons, quizzes, coding challenges, real-time code execution, and an instructor dashboard with Firebase Auth and Cloud Firestore.',
     img: 'assets/code-clash.png',
-    url: null,
+    url: 'https://github.com/Tannntannn/CodeClash',
   },
 ];
 
