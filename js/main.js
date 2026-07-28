@@ -376,7 +376,7 @@
     });
   }
 
-  /* —— Site-wide space field —— */
+  /* —— Soft site-wide space field (subtle in light + dark) —— */
   function initSpaceField() {
     const canvas = document.getElementById('space-bg');
     if (!canvas) return;
@@ -396,9 +396,12 @@
     let scrollP = 0;
     let pointer = { x: 0.5, y: 0.5, active: false };
     let ink = { r: 10, g: 10, b: 10 };
+    let isDark = true;
     let time = 0;
 
-    function readInk() {
+    function readTheme() {
+      isDark = document.documentElement.classList.contains('dark')
+        || document.documentElement.dataset.theme === 'dark';
       const raw = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
       const hex = raw.replace('#', '');
       if (hex.length === 6) {
@@ -410,6 +413,11 @@
       }
     }
 
+    // Light mode needs much lower opacity so dots don't dirty the white page
+    function themeMul() {
+      return isDark ? 1 : 0.38;
+    }
+
     function scrollProgress() {
       const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       return Math.min(1, Math.max(0, window.scrollY / max));
@@ -417,9 +425,10 @@
 
     function makeStars() {
       const area = width * height;
-      const baseFar = Math.min(180, Math.floor(area / 9000));
-      const baseMid = Math.min(90, Math.floor(area / 16000));
-      const baseNear = Math.min(36, Math.floor(area / 42000));
+      // Sparse — atmosphere, not wallpaper noise
+      const baseFar = Math.min(70, Math.floor(area / 22000));
+      const baseMid = Math.min(28, Math.floor(area / 48000));
+      const baseNear = Math.min(10, Math.floor(area / 110000));
       const list = [];
 
       function push(count, layer) {
@@ -428,10 +437,14 @@
             layer,
             x: Math.random(),
             y: Math.random(),
-            r: layer === 'far' ? 0.6 + Math.random() * 0.7 : layer === 'mid' ? 0.9 + Math.random() * 1.1 : 1.2 + Math.random() * 1.6,
-            base: layer === 'far' ? 0.12 + Math.random() * 0.18 : layer === 'mid' ? 0.2 + Math.random() * 0.28 : 0.35 + Math.random() * 0.4,
+            r: layer === 'far' ? 0.45 + Math.random() * 0.45
+              : layer === 'mid' ? 0.6 + Math.random() * 0.55
+              : 0.8 + Math.random() * 0.7,
+            base: layer === 'far' ? 0.06 + Math.random() * 0.08
+              : layer === 'mid' ? 0.09 + Math.random() * 0.1
+              : 0.12 + Math.random() * 0.12,
             tw: Math.random() * Math.PI * 2,
-            drift: (Math.random() - 0.5) * (layer === 'near' ? 0.00035 : layer === 'mid' ? 0.00022 : 0.00012),
+            drift: (Math.random() - 0.5) * (layer === 'near' ? 0.00012 : layer === 'mid' ? 0.00008 : 0.00004),
           });
         }
       }
@@ -458,11 +471,10 @@
     function drawStatic() {
       ctx.clearRect(0, 0, width, height);
       const p = scrollProgress();
-      const density = 0.35 + p * 0.55;
+      const density = (0.55 + p * 0.35) * themeMul();
       stars.forEach((s) => {
-        if (s.layer === 'near' && p < 0.25) return;
-        if (s.layer === 'mid' && p < 0.08 && Math.random() > 0.7) return;
-        const alpha = s.base * density * (s.layer === 'far' ? 0.7 : 1);
+        if (s.layer === 'near' && p < 0.4) return;
+        const alpha = Math.min(0.28, s.base * density);
         ctx.beginPath();
         ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${alpha})`;
         ctx.arc(s.x * width, s.y * height, s.r, 0, Math.PI * 2);
@@ -476,40 +488,22 @@
       scrollP = scrollProgress();
       ctx.clearRect(0, 0, width, height);
 
-      const density = 0.45 + scrollP * 0.9;
-      const speed = 0.55 + scrollP * 1.4;
+      // Gentle ramp — still calm at the bottom of the page
+      const density = (0.5 + scrollP * 0.4) * themeMul();
+      const speed = 0.35 + scrollP * 0.45;
       const wake = finePointer.matches && pointer.active;
       const px = pointer.x * width;
       const py = pointer.y * height;
-      const wakeR = 140 + scrollP * 80;
-
-      // Soft nebula wash deeper in the page
-      if (scrollP > 0.2) {
-        const nebula = (scrollP - 0.2) * 0.12;
-        const g = ctx.createRadialGradient(
-          width * (0.5 + (pointer.x - 0.5) * 0.15),
-          height * (0.4 + (pointer.y - 0.5) * 0.1),
-          40,
-          width * 0.5,
-          height * 0.45,
-          Math.max(width, height) * 0.7
-        );
-        g.addColorStop(0, `rgba(${ink.r},${ink.g},${ink.b},${nebula})`);
-        g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, width, height);
-      }
+      const wakeR = 90 + scrollP * 30;
 
       const pull = {
-        far: 8 + scrollP * 10,
-        mid: 18 + scrollP * 22,
-        near: 36 + scrollP * 40,
+        far: 3 + scrollP * 3,
+        mid: 6 + scrollP * 5,
+        near: 10 + scrollP * 8,
       };
 
       stars.forEach((s) => {
-        // Reveal deeper layers as you scroll
-        if (s.layer === 'near' && scrollP < 0.12) return;
-        if (s.layer === 'mid' && scrollP < 0.04 && s.base < 0.28) return;
+        if (s.layer === 'near' && scrollP < 0.35) return;
 
         s.x += s.drift * speed;
         if (s.x < -0.02) s.x = 1.02;
@@ -527,20 +521,20 @@
         let alpha = s.base * density;
 
         if (s.layer === 'near') {
-          alpha *= 0.85 + 0.15 * Math.sin(time * (1.2 + scrollP) + s.tw);
+          alpha *= 0.92 + 0.08 * Math.sin(time * 0.7 + s.tw);
         }
 
         if (wake) {
           const d = Math.hypot(x - px, y - py);
           if (d < wakeR) {
-            alpha *= 1 + (1 - d / wakeR) * (0.9 + scrollP * 0.6);
+            alpha *= 1 + (1 - d / wakeR) * 0.28;
           }
         }
 
-        alpha = Math.min(0.95, alpha);
+        alpha = Math.min(isDark ? 0.32 : 0.16, alpha);
         ctx.beginPath();
         ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${alpha})`;
-        ctx.arc(x, y, s.r * (0.85 + scrollP * 0.35), 0, Math.PI * 2);
+        ctx.arc(x, y, s.r, 0, Math.PI * 2);
         ctx.fill();
       });
 
@@ -560,8 +554,8 @@
 
     function onPointer(e) {
       if (!finePointer.matches) return;
-      pointer.x = e.clientX / width;
-      pointer.y = e.clientY / height;
+      pointer.x = e.clientX / Math.max(1, width);
+      pointer.y = e.clientY / Math.max(1, height);
       pointer.active = true;
     }
 
@@ -569,7 +563,7 @@
       pointer.active = false;
     }
 
-    readInk();
+    readTheme();
     resize();
     window.addEventListener('resize', resize, { passive: true });
     window.addEventListener('scroll', () => {
@@ -583,9 +577,8 @@
       else if (!reducedMotion.matches) start();
     });
 
-    // Theme changes recolor stars
     const themeObs = new MutationObserver(() => {
-      readInk();
+      readTheme();
       if (reducedMotion.matches) drawStatic();
     });
     themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
