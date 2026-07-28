@@ -413,9 +413,9 @@
       }
     }
 
-    // Light mode needs much lower opacity so dots don't dirty the white page
+    // Light mode stays softer so the white page doesn't look dirty
     function themeMul() {
-      return isDark ? 1 : 0.38;
+      return isDark ? 1 : 0.52;
     }
 
     function scrollProgress() {
@@ -425,10 +425,10 @@
 
     function makeStars() {
       const area = width * height;
-      // Sparse — atmosphere, not wallpaper noise
-      const baseFar = Math.min(70, Math.floor(area / 22000));
-      const baseMid = Math.min(28, Math.floor(area / 48000));
-      const baseNear = Math.min(10, Math.floor(area / 110000));
+      // A little more presence, still calm
+      const baseFar = Math.min(95, Math.floor(area / 16000));
+      const baseMid = Math.min(40, Math.floor(area / 36000));
+      const baseNear = Math.min(16, Math.floor(area / 80000));
       const list = [];
 
       function push(count, layer) {
@@ -437,14 +437,14 @@
             layer,
             x: Math.random(),
             y: Math.random(),
-            r: layer === 'far' ? 0.45 + Math.random() * 0.45
-              : layer === 'mid' ? 0.6 + Math.random() * 0.55
-              : 0.8 + Math.random() * 0.7,
-            base: layer === 'far' ? 0.06 + Math.random() * 0.08
-              : layer === 'mid' ? 0.09 + Math.random() * 0.1
-              : 0.12 + Math.random() * 0.12,
+            r: layer === 'far' ? 0.5 + Math.random() * 0.5
+              : layer === 'mid' ? 0.7 + Math.random() * 0.65
+              : 0.95 + Math.random() * 0.85,
+            base: layer === 'far' ? 0.08 + Math.random() * 0.1
+              : layer === 'mid' ? 0.12 + Math.random() * 0.12
+              : 0.16 + Math.random() * 0.14,
             tw: Math.random() * Math.PI * 2,
-            drift: (Math.random() - 0.5) * (layer === 'near' ? 0.00012 : layer === 'mid' ? 0.00008 : 0.00004),
+            drift: (Math.random() - 0.5) * (layer === 'near' ? 0.00018 : layer === 'mid' ? 0.0001 : 0.00005),
           });
         }
       }
@@ -471,10 +471,10 @@
     function drawStatic() {
       ctx.clearRect(0, 0, width, height);
       const p = scrollProgress();
-      const density = (0.55 + p * 0.35) * themeMul();
+      const density = (0.65 + p * 0.4) * themeMul();
       stars.forEach((s) => {
-        if (s.layer === 'near' && p < 0.4) return;
-        const alpha = Math.min(0.28, s.base * density);
+        if (s.layer === 'near' && p < 0.25) return;
+        const alpha = Math.min(isDark ? 0.36 : 0.18, s.base * density);
         ctx.beginPath();
         ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${alpha})`;
         ctx.arc(s.x * width, s.y * height, s.r, 0, Math.PI * 2);
@@ -488,22 +488,33 @@
       scrollP = scrollProgress();
       ctx.clearRect(0, 0, width, height);
 
-      // Gentle ramp — still calm at the bottom of the page
-      const density = (0.5 + scrollP * 0.4) * themeMul();
-      const speed = 0.35 + scrollP * 0.45;
+      const density = (0.62 + scrollP * 0.5) * themeMul();
+      const speed = 0.4 + scrollP * 0.65;
       const wake = finePointer.matches && pointer.active;
       const px = pointer.x * width;
       const py = pointer.y * height;
-      const wakeR = 90 + scrollP * 30;
+      const wakeR = 120 + scrollP * 50;
+
+      // Soft cursor aura (interactive without being loud)
+      if (wake) {
+        const aura = ctx.createRadialGradient(px, py, 0, px, py, wakeR);
+        const auraA = (isDark ? 0.045 : 0.028) * (0.7 + scrollP * 0.4);
+        aura.addColorStop(0, `rgba(${ink.r},${ink.g},${ink.b},${auraA})`);
+        aura.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = aura;
+        ctx.fillRect(px - wakeR, py - wakeR, wakeR * 2, wakeR * 2);
+      }
 
       const pull = {
-        far: 3 + scrollP * 3,
-        mid: 6 + scrollP * 5,
-        near: 10 + scrollP * 8,
+        far: 5 + scrollP * 5,
+        mid: 10 + scrollP * 10,
+        near: 18 + scrollP * 16,
       };
 
+      const drawn = [];
+
       stars.forEach((s) => {
-        if (s.layer === 'near' && scrollP < 0.35) return;
+        if (s.layer === 'near' && scrollP < 0.18) return;
 
         s.x += s.drift * speed;
         if (s.x < -0.02) s.x = 1.02;
@@ -520,23 +531,45 @@
         const y = s.y * height + oy;
         let alpha = s.base * density;
 
-        if (s.layer === 'near') {
-          alpha *= 0.92 + 0.08 * Math.sin(time * 0.7 + s.tw);
+        if (s.layer !== 'far') {
+          alpha *= 0.9 + 0.1 * Math.sin(time * (0.6 + scrollP * 0.4) + s.tw);
         }
 
         if (wake) {
           const d = Math.hypot(x - px, y - py);
           if (d < wakeR) {
-            alpha *= 1 + (1 - d / wakeR) * 0.28;
+            alpha *= 1 + (1 - d / wakeR) * 0.55;
+            drawn.push({ x, y, d, layer: s.layer });
           }
         }
 
-        alpha = Math.min(isDark ? 0.32 : 0.16, alpha);
+        alpha = Math.min(isDark ? 0.42 : 0.2, alpha);
         ctx.beginPath();
         ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${alpha})`;
-        ctx.arc(x, y, s.r, 0, Math.PI * 2);
+        ctx.arc(x, y, s.r * (1 + scrollP * 0.12), 0, Math.PI * 2);
         ctx.fill();
       });
+
+      // Tiny constellation lines near the cursor
+      if (wake && drawn.length > 1) {
+        drawn.sort((a, b) => a.d - b.d);
+        const near = drawn.slice(0, 8);
+        ctx.lineWidth = 0.6;
+        for (let i = 0; i < near.length; i += 1) {
+          for (let j = i + 1; j < near.length; j += 1) {
+            const a = near[i];
+            const b = near[j];
+            const dist = Math.hypot(a.x - b.x, a.y - b.y);
+            if (dist > 90) continue;
+            const lineA = (isDark ? 0.1 : 0.05) * (1 - dist / 90);
+            ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${lineA})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
 
       raf = requestAnimationFrame(frame);
     }
