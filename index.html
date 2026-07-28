@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=exp5">
+  <link rel="stylesheet" href="css/styles.css?v=space6">
 
   <script>
     (function () {
@@ -29,11 +29,14 @@
 </head>
 <body>
 
+  <canvas id="space-bg" class="space-bg" aria-hidden="true"></canvas>
+
   <a href="#main" class="skip-link">Skip to main content</a>
 
   <aside class="sidebar" aria-label="Primary">
     <a href="#hero" class="sidebar__brand">mark tristan</a>
     <nav class="sidebar__nav">
+      <a href="#about" class="nav-link" data-section="about">about</a>
       <a href="#services" class="nav-link" data-section="services">services</a>
       <a href="#work" class="nav-link" data-section="work">projects</a>
       <a href="#experience" class="nav-link" data-section="experience">experience</a>
@@ -90,6 +93,7 @@
 
   <div id="mobile-menu" class="mobile-overlay" hidden>
     <nav class="mobile-overlay__nav" aria-label="Mobile">
+      <a href="#about">about</a>
       <a href="#services">services</a>
       <a href="#work">projects</a>
       <a href="#experience">experience</a>
@@ -151,8 +155,21 @@
         </div>
       </section>
 
+      <section id="about" class="section section--about" aria-labelledby="about-heading">
+        <h2 id="about-heading" class="section-label reveal">01 — about</h2>
+        <div class="about__panel reveal reveal-delay-1">
+          <p class="about__lead">
+            I'm a software developer. I build modern web systems, Android apps, and WordPress sites — and I handle IT support when systems need fixing.
+          </p>
+          <p class="about__text">
+            Based in Sariaya, Quezon. I turn rough ideas into clean, working products — open to full-time work and freelance.
+          </p>
+          <p class="micro about__meta">change it &amp; design.</p>
+        </div>
+      </section>
+
       <section id="services" class="section" aria-labelledby="services-heading">
-        <h2 id="services-heading" class="section-label reveal">01 — services</h2>
+        <h2 id="services-heading" class="section-label reveal">02 — services</h2>
         <ul class="row-list" role="list">
           <li class="row-item reveal reveal-delay-1">
             <span class="micro row-item__idx">01</span>
@@ -186,13 +203,13 @@
       </section>
 
       <section id="work" class="section" aria-labelledby="work-heading">
-        <h2 id="work-heading" class="section-label reveal">02 — projects</h2>
+        <h2 id="work-heading" class="section-label reveal">03 — projects</h2>
         <div id="project-filters" class="filter-bar reveal" role="group" aria-label="Filter projects"></div>
         <div id="work-grid" class="project-list" aria-live="polite"></div>
       </section>
 
       <section id="experience" class="section" aria-labelledby="experience-heading">
-        <h2 id="experience-heading" class="section-label reveal">03 — experience</h2>
+        <h2 id="experience-heading" class="section-label reveal">04 — experience</h2>
         <article class="exp reveal">
           <div class="exp__row">
             <div class="exp__aside">
@@ -237,30 +254,17 @@
       </section>
 
       <section id="stack" class="section" aria-labelledby="stack-heading">
-        <h2 id="stack-heading" class="section-label reveal">04 — stack</h2>
+        <h2 id="stack-heading" class="section-label reveal">05 — stack</h2>
         <div class="stack-block reveal reveal-delay-1">
           <p class="micro stack-block__label">tech &amp; tools</p>
-          <div class="pill-list" role="list">
-            <span class="pill" role="listitem">JavaScript</span>
-            <span class="pill" role="listitem">Python</span>
-            <span class="pill" role="listitem">Java</span>
-            <span class="pill" role="listitem">C#</span>
-            <span class="pill" role="listitem">React</span>
-            <span class="pill" role="listitem">Node.js</span>
-            <span class="pill" role="listitem">Express.js</span>
-            <span class="pill" role="listitem">FastAPI</span>
-            <span class="pill" role="listitem">Tailwind CSS</span>
-            <span class="pill" role="listitem">Vite</span>
-            <span class="pill" role="listitem">Firebase</span>
-            <span class="pill" role="listitem">Supabase</span>
-            <span class="pill" role="listitem">MySQL</span>
-            <span class="pill" role="listitem">PostgreSQL</span>
-            <span class="pill" role="listitem">WordPress</span>
-            <span class="pill" role="listitem">Elementor</span>
-            <span class="pill" role="listitem">Android Studio</span>
-            <span class="pill" role="listitem">Figma</span>
-            <span class="pill" role="listitem">Hardware Troubleshooting</span>
-            <span class="pill" role="listitem">Software Troubleshooting</span>
+          <div class="stack-marquee" data-marquee>
+            <div class="stack-marquee__fade stack-marquee__fade--left" aria-hidden="true"></div>
+            <div class="stack-marquee__fade stack-marquee__fade--right" aria-hidden="true"></div>
+            <div class="stack-marquee__viewport">
+              <div class="stack-marquee__track" data-marquee-track>
+                <!-- filled by js/main.js -->
+              </div>
+            </div>
           </div>
         </div>
         <div class="stack-block reveal reveal-delay-2">
@@ -280,7 +284,7 @@
 
       <section id="github" class="section" aria-labelledby="github-heading">
         <div class="section-head-row reveal">
-          <h2 id="github-heading" class="section-label">05 — github</h2>
+          <h2 id="github-heading" class="section-label">06 — github</h2>
           <a class="ext" href="https://github.com/Tannntannn" target="_blank" rel="noopener noreferrer">@tannntannn</a>
         </div>
         <div class="gh-wrap reveal reveal-delay-1">
@@ -290,7 +294,7 @@
       </section>
 
       <section id="contact" class="section section--contact" aria-labelledby="contact-heading">
-        <h2 id="contact-heading" class="section-label reveal">06 — contact</h2>
+        <h2 id="contact-heading" class="section-label reveal">07 — contact</h2>
         <p class="contact-lead reveal reveal-delay-1">
           Change it &amp; design.
         </p>
@@ -315,7 +319,7 @@
   </div>
 
   <script src="js/site-sounds.js"></script>
-  <script src="js/projects.js?v=exp5"></script>
-  <script src="js/main.js?v=exp5"></script>
+  <script src="js/projects.js?v=space6"></script>
+  <script src="js/main.js?v=space6"></script>
 </body>
 </html>
