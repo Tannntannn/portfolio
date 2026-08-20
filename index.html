@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=space9">
+  <link rel="stylesheet" href="css/styles.css?v=space11">
 
   <script>
     (function () {
@@ -241,13 +241,22 @@
                 </div>
               </div>
 
-              <a class="exp__cert" href="assets/ojt-certificate.pdf" target="_blank" rel="noopener noreferrer">
-                <img src="assets/certificate.png" alt="OJT completion certificate for Mark Tristan Perjes De Villa" width="480" height="360" loading="lazy">
+              <button
+                type="button"
+                class="exp__cert"
+                data-cert-open
+                data-cert-src="assets/certificate.png"
+                data-cert-pdf="assets/ojt-certificate.pdf"
+                data-cert-title="OJT completion certificate"
+                data-cert-alt="OJT completion certificate for Mark Tristan Perjes De Villa"
+                aria-haspopup="dialog"
+              >
+                <img src="assets/certificate.png" alt="" width="480" height="360" loading="lazy">
                 <span class="exp__cert-meta">
                   <span class="micro">verified credential</span>
-                  <span class="exp__cert-cta">view certificate ↗</span>
+                  <span class="exp__cert-cta">view certificate</span>
                 </span>
-              </a>
+              </button>
             </div>
           </div>
         </article>
@@ -318,8 +327,42 @@
     </footer>
   </div>
 
+  <div
+    id="cert-modal"
+    class="cert-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cert-modal-title"
+    hidden
+  >
+    <div class="cert-modal__backdrop" data-cert-close tabindex="-1"></div>
+    <div class="cert-modal__panel" role="document">
+      <header class="cert-modal__head">
+        <div class="cert-modal__titles">
+          <p class="micro" id="cert-modal-kicker">verified credential</p>
+          <h3 id="cert-modal-title" class="cert-modal__title">Certificate</h3>
+        </div>
+        <button type="button" class="cert-modal__close" data-cert-close aria-label="Close certificate">
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+      <div class="cert-modal__stage">
+        <img id="cert-modal-img" class="cert-modal__img" src="" alt="">
+      </div>
+      <footer class="cert-modal__foot">
+        <a
+          id="cert-modal-pdf"
+          class="cert-modal__pdf"
+          href="assets/ojt-certificate.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >open pdf ↗</a>
+      </footer>
+    </div>
+  </div>
+
   <script src="js/site-sounds.js"></script>
-  <script src="js/projects.js?v=space9"></script>
-  <script src="js/main.js?v=space9"></script>
+  <script src="js/projects.js?v=space11"></script>
+  <script src="js/main.js?v=space11"></script>
 </body>
 </html>

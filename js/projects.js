@@ -58,6 +58,7 @@ const PROJECTS = [
     desc: 'Gamified Android app for Java fundamentals — interactive lessons, quizzes, coding challenges, real-time code execution, and an instructor dashboard with Firebase Auth and Cloud Firestore.',
     img: 'assets/code-clash.png',
     url: 'https://github.com/Tannntannn/CodeClash',
+    apk: 'https://drive.google.com/drive/folders/1mIXLeHJuPhR1FRi6jEWHCAPd5wf3GUDo?usp=sharing',
   },
 ];
 

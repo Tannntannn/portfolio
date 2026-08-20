@@ -299,13 +299,14 @@
 
     workGrid.innerHTML = filtered
       .map((p, index) => {
-        const hasUrl = Boolean(p.url);
+        const primaryHref = p.apk || p.url;
+        const hasUrl = Boolean(primaryHref);
         const title = escapeHtml(p.title);
         const blurb = escapeHtml(p.blurb || p.desc);
         const year = escapeHtml(p.year);
         const img = escapeHtml(p.img);
         const cat = escapeHtml(p.categoryLabel || p.category);
-        const url = hasUrl ? escapeHtml(p.url) : '';
+        const url = hasUrl ? escapeHtml(primaryHref) : '';
         const idx = String(index + 1).padStart(2, '0');
         const flip = index % 2 === 1 ? ' project--flip' : '';
 
@@ -325,8 +326,20 @@
           ? `<a href="${url}" class="project__title" target="_blank" rel="noopener noreferrer">${title}</a>`
           : `<h3 class="project__title">${title}</h3>`;
 
-        const action = hasUrl
-          ? `<a href="${url}" class="project__cta" target="_blank" rel="noopener noreferrer">${/github\.com/i.test(p.url) ? 'repo ↗' : 'visit ↗'}</a>`
+        const ctas = [];
+        if (p.apk) {
+          ctas.push(
+            `<a href="${escapeHtml(p.apk)}" class="project__cta" target="_blank" rel="noopener noreferrer">apk ↗</a>`
+          );
+        }
+        if (p.url && p.url !== p.apk) {
+          const label = /github\.com/i.test(p.url) ? 'repo ↗' : 'visit ↗';
+          ctas.push(
+            `<a href="${escapeHtml(p.url)}" class="project__cta" target="_blank" rel="noopener noreferrer">${label}</a>`
+          );
+        }
+        const action = ctas.length
+          ? `<span class="project__actions">${ctas.join('<span class="project__actions-sep" aria-hidden="true"> · </span>')}</span>`
           : `<span class="project__cta project__cta--static">android app</span>`;
 
         const tags = p.tags.map((tag) => escapeHtml(tag)).join('<span aria-hidden="true"> · </span>');
@@ -739,6 +752,73 @@
     track.setAttribute('aria-hidden', 'true');
   }
 
+  function initCertModal() {
+    const modal = document.getElementById('cert-modal');
+    if (!modal) return;
+
+    const img = document.getElementById('cert-modal-img');
+    const titleEl = document.getElementById('cert-modal-title');
+    const pdfLink = document.getElementById('cert-modal-pdf');
+    const openers = document.querySelectorAll('[data-cert-open]');
+    let lastFocus = null;
+
+    function openCert(trigger) {
+      lastFocus = trigger;
+      const src = trigger.getAttribute('data-cert-src') || '';
+      const pdf = trigger.getAttribute('data-cert-pdf') || '';
+      const title = trigger.getAttribute('data-cert-title') || 'Certificate';
+      const alt = trigger.getAttribute('data-cert-alt') || title;
+
+      if (img) {
+        img.src = src;
+        img.alt = alt;
+      }
+      if (titleEl) titleEl.textContent = title;
+      if (pdfLink) {
+        if (pdf) {
+          pdfLink.href = pdf;
+          pdfLink.hidden = false;
+        } else {
+          pdfLink.hidden = true;
+        }
+      }
+
+      modal.hidden = false;
+      document.body.classList.add('cert-modal-open');
+      const closeBtn = modal.querySelector('.cert-modal__close');
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closeCert() {
+      if (modal.hidden) return;
+      modal.hidden = true;
+      document.body.classList.remove('cert-modal-open');
+      if (img) {
+        img.removeAttribute('src');
+        img.alt = '';
+      }
+      if (lastFocus && typeof lastFocus.focus === 'function') {
+        lastFocus.focus();
+      }
+      lastFocus = null;
+    }
+
+    openers.forEach((btn) => {
+      btn.addEventListener('click', () => openCert(btn));
+    });
+
+    modal.querySelectorAll('[data-cert-close]').forEach((el) => {
+      el.addEventListener('click', closeCert);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) {
+        e.preventDefault();
+        closeCert();
+      }
+    });
+  }
+
   function init() {
     initTheme();
     initMobileMenu();
@@ -749,6 +829,7 @@
     initGhChart();
     initSpaceField();
     initStackMarquee();
+    initCertModal();
     const y = String(new Date().getFullYear());
     if (yearEl) yearEl.textContent = y;
     if (yearFooter) yearFooter.textContent = y;
