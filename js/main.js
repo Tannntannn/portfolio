@@ -328,8 +328,9 @@
 
         const ctas = [];
         if (p.apk) {
+          const apkLabel = /expo\.dev/i.test(p.apk) ? 'app ↗' : 'apk ↗';
           ctas.push(
-            `<a href="${escapeHtml(p.apk)}" class="project__cta" target="_blank" rel="noopener noreferrer">apk ↗</a>`
+            `<a href="${escapeHtml(p.apk)}" class="project__cta" target="_blank" rel="noopener noreferrer">${apkLabel}</a>`
           );
         }
         if (p.url && p.url !== p.apk) {
