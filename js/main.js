@@ -299,7 +299,7 @@
 
     workGrid.innerHTML = filtered
       .map((p, index) => {
-        const primaryHref = p.apk || p.url;
+        const primaryHref = p.url || p.apk;
         const hasUrl = Boolean(primaryHref);
         const title = escapeHtml(p.title);
         const blurb = escapeHtml(p.blurb || p.desc);
