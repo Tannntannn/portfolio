@@ -220,7 +220,7 @@
 
   function updateActiveNav() {
     const links = document.querySelectorAll('.nav-link[data-section]');
-    const sections = ['contact', 'github', 'stack', 'experience', 'work', 'services', 'about', 'hero'];
+    const sections = ['contact', 'play', 'github', 'stack', 'experience', 'work', 'services', 'about', 'hero'];
     const offset = 120;
     const atBottom =
       window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
@@ -415,6 +415,14 @@
     let time = 0;
     let ripples = []; // tap ripples for mobile
 
+    let nebula = [];
+    let dust = [];
+    let meteors = [];
+    let lastMeteor = 0;
+    let lastScrollY = 0;
+    let scrollVel = 0;
+    let scrollBoost = 0;
+
     function readTheme() {
       isDark = document.documentElement.classList.contains('dark')
         || document.documentElement.dataset.theme === 'dark';
@@ -429,9 +437,8 @@
       }
     }
 
-    // Light mode stays softer so the white page doesn't look dirty
     function themeMul() {
-      return isDark ? 1 : 0.52;
+      return isDark ? 1 : 0.82;
     }
 
     function scrollProgress() {
@@ -441,11 +448,10 @@
 
     function makeStars() {
       const area = width * height;
-      // A little more presence, still calm
-      const baseFar = Math.min(95, Math.floor(area / 16000));
-      const baseMid = Math.min(40, Math.floor(area / 36000));
-      const baseNear = Math.min(16, Math.floor(area / 80000));
       const list = [];
+      const far = Math.min(180, Math.floor(area / 9000));
+      const mid = Math.min(70, Math.floor(area / 20000));
+      const near = Math.min(32, Math.floor(area / 42000));
 
       function push(count, layer) {
         for (let i = 0; i < count; i += 1) {
@@ -453,22 +459,67 @@
             layer,
             x: Math.random(),
             y: Math.random(),
-            r: layer === 'far' ? 0.5 + Math.random() * 0.5
-              : layer === 'mid' ? 0.7 + Math.random() * 0.65
-              : 0.95 + Math.random() * 0.85,
-            base: layer === 'far' ? 0.08 + Math.random() * 0.1
-              : layer === 'mid' ? 0.12 + Math.random() * 0.12
-              : 0.16 + Math.random() * 0.14,
+            r: layer === 'far' ? 0.45 + Math.random() * 0.55
+              : layer === 'mid' ? 0.7 + Math.random() * 0.7
+              : 1.05 + Math.random() * 1.05,
+            base: layer === 'far' ? 0.07 + Math.random() * 0.1
+              : layer === 'mid' ? 0.12 + Math.random() * 0.13
+              : 0.18 + Math.random() * 0.16,
             tw: Math.random() * Math.PI * 2,
-            drift: (Math.random() - 0.5) * (layer === 'near' ? 0.00018 : layer === 'mid' ? 0.0001 : 0.00005),
+            drift: (Math.random() - 0.5) * (layer === 'near' ? 0.00022 : layer === 'mid' ? 0.00012 : 0.00006),
+            depth: layer === 'far' ? 0.18 : layer === 'mid' ? 0.42 : 0.78,
+            pulse: 0.4 + Math.random() * 1.2,
           });
         }
       }
 
-      push(baseFar, 'far');
-      push(baseMid, 'mid');
-      push(baseNear, 'near');
+      push(far, 'far');
+      push(mid, 'mid');
+      push(near, 'near');
       stars = list;
+
+      dust = [];
+      const dustN = Math.min(70, Math.floor(area / 22000));
+      for (let i = 0; i < dustN; i += 1) {
+        dust.push({
+          x: Math.random(),
+          y: Math.random(),
+          r: 0.35 + Math.random() * 0.45,
+          a: 0.06 + Math.random() * 0.08,
+          drift: (Math.random() - 0.5) * 0.00012,
+          depth: 0.25 + Math.random() * 0.35,
+        });
+      }
+
+      nebula = [
+        { x: 0.18, y: 0.22, r: 0.38, ox: 0.18, oy: 0.22, t: 0 },
+        { x: 0.78, y: 0.7, r: 0.42, ox: 0.78, oy: 0.7, t: 1.7 },
+        { x: 0.52, y: 0.4, r: 0.28, ox: 0.52, oy: 0.4, t: 3.4 },
+      ];
+    }
+
+    function wrap(v, max) {
+      if (max <= 0) return 0;
+      return ((v % max) + max) % max;
+    }
+
+    function starPos(s) {
+      const parallax = (scrollP * height * 1.35 + scrollVel * 0.55) * s.depth;
+      const shear = scrollVel * s.depth * 0.22;
+      return {
+        x: wrap(s.x * width + shear, width),
+        y: wrap(s.y * height + parallax, height),
+      };
+    }
+      const fromLeft = Math.random() > 0.5;
+      meteors.push({
+        x: fromLeft ? -0.05 : 1.05,
+        y: Math.random() * 0.45,
+        vx: (fromLeft ? 0.012 : -0.012) * (0.8 + Math.random() * 0.5),
+        vy: 0.006 + Math.random() * 0.008,
+        life: 0,
+      });
+      if (meteors.length > 3) meteors.shift();
     }
 
     function resize() {
@@ -488,12 +539,23 @@
       ctx.clearRect(0, 0, width, height);
       const p = scrollProgress();
       const density = (0.65 + p * 0.4) * themeMul();
+      nebula.forEach((n) => {
+        const nx = n.x * width;
+        const ny = n.y * height;
+        const nr = n.r * Math.max(width, height) * 0.55;
+        const g = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+        const a = (isDark ? 0.045 : 0.028) * themeMul();
+        g.addColorStop(0, `rgba(${ink.r},${ink.g},${ink.b},${a})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(nx - nr, ny - nr, nr * 2, nr * 2);
+      });
       stars.forEach((s) => {
-        if (s.layer === 'near' && p < 0.25) return;
-        const alpha = Math.min(isDark ? 0.36 : 0.18, s.base * density);
+        const pos = starPos(s);
+        const alpha = Math.min(isDark ? 0.55 : 0.32, s.base * density * 1.35);
         ctx.beginPath();
         ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${alpha})`;
-        ctx.arc(s.x * width, s.y * height, s.r, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, s.r * 1.15, 0, Math.PI * 2);
         ctx.fill();
       });
     }
@@ -502,108 +564,162 @@
       if (!running) return;
       time = ts * 0.001;
       scrollP = scrollProgress();
+      scrollBoost += (Math.min(1, Math.abs(scrollVel) / 22) - scrollBoost) * 0.28;
+      scrollVel *= 0.88;
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth wake fade — works after finger lifts on mobile
-      const targetWake = pointer.active ? 1 : 0;
-      wakeStrength += (targetWake - wakeStrength) * (pointer.active ? 0.35 : 0.06);
+      const targetWake = pointer.active ? 1 : Math.max(0.55, scrollBoost);
+      wakeStrength += (targetWake - wakeStrength) * (pointer.active ? 0.35 : 0.12);
 
-      // Scroll ambient focus so mobile still feels alive without touch
-      const ambientX = 0.5 + Math.sin(scrollP * Math.PI * 2) * 0.12;
-      const ambientY = 0.35 + scrollP * 0.3;
-      const usePointer = wakeStrength > 0.02;
+      const ambientX = 0.5 + Math.sin(scrollP * Math.PI * 2) * 0.16;
+      const ambientY = 0.42 + scrollP * 0.22;
+      const usePointer = pointer.active && wakeStrength > 0.02;
       const focusX = usePointer ? pointer.x : ambientX;
       const focusY = usePointer ? pointer.y : ambientY;
-      const focusMul = usePointer ? wakeStrength : 0.35 + scrollP * 0.25;
+      const focusMul = Math.max(wakeStrength, 0.55 + scrollP * 0.45);
 
-      const density = (0.62 + scrollP * 0.5) * themeMul();
-      const speed = 0.4 + scrollP * 0.65;
+      const density = (0.9 + scrollP * 0.7 + scrollBoost * 0.45) * themeMul();
+      const speed = 0.7 + scrollP * 1.1 + scrollBoost * 1.4;
       const px = focusX * width;
       const py = focusY * height;
-      const wakeR = (finePointer.matches ? 120 : 150) + scrollP * 50;
+      const wakeR = (finePointer.matches ? 140 : 170) + scrollP * 60;
+
+      nebula.forEach((n) => {
+        n.x = n.ox + Math.sin(time * 0.12 + n.t) * 0.04;
+        n.y = n.oy + Math.cos(time * 0.09 + n.t) * 0.03;
+        const nx = n.x * width + (focusX - 0.5) * 18 * focusMul;
+        const ny = n.y * height + (focusY - 0.5) * 14 * focusMul;
+        const nr = n.r * Math.max(width, height) * (0.5 + scrollP * 0.08);
+        const g = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+        const a = (isDark ? 0.09 : 0.055) * themeMul() * (1 + scrollBoost * 0.4);
+        g.addColorStop(0, `rgba(${ink.r},${ink.g},${ink.b},${a})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(nx - nr, ny - nr, nr * 2, nr * 2);
+      });
+
+      dust.forEach((d) => {
+        d.x += d.drift * speed;
+        if (d.x < 0) d.x = 1;
+        if (d.x > 1) d.x = 0;
+        const dy = wrap(d.y * height + (scrollP * height * 0.9 + scrollVel * 0.4) * (d.depth || 0.3), height);
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${d.a * themeMul() * (1.2 + scrollBoost)})`;
+        ctx.arc(d.x * width, dy, d.r * 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      });
 
       if (focusMul > 0.05) {
         const aura = ctx.createRadialGradient(px, py, 0, px, py, wakeR);
-        const auraA = (isDark ? 0.05 : 0.03) * focusMul * (0.7 + scrollP * 0.4);
+        const auraA = (isDark ? 0.07 : 0.04) * focusMul * (0.75 + scrollP * 0.4);
         aura.addColorStop(0, `rgba(${ink.r},${ink.g},${ink.b},${auraA})`);
         aura.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = aura;
         ctx.fillRect(px - wakeR, py - wakeR, wakeR * 2, wakeR * 2);
       }
 
-      // Tap ripples (mobile)
+      if (ts - lastMeteor > 5200 + Math.random() * 4000) {
+        spawnMeteor();
+        lastMeteor = ts;
+      }
+
+      meteors = meteors.filter((m) => {
+        m.life += 0.016;
+        m.x += m.vx;
+        m.y += m.vy;
+        if (m.life > 1.4 || m.x < -0.1 || m.x > 1.1) return false;
+        const a = (1 - m.life / 1.4) * (isDark ? 0.35 : 0.18) * themeMul();
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${a})`;
+        ctx.lineWidth = 1.15;
+        ctx.moveTo(m.x * width, m.y * height);
+        ctx.lineTo((m.x - m.vx * 12) * width, (m.y - m.vy * 12) * height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${a})`;
+        ctx.arc(m.x * width, m.y * height, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+        return true;
+      });
+
       ripples = ripples.filter((r) => {
         r.life += 0.016;
         if (r.life > 1) return false;
-        const radius = 20 + r.life * 110;
-        const a = (1 - r.life) * (isDark ? 0.18 : 0.1) * themeMul();
+        const radius = 18 + r.life * 150;
+        const a = (1 - r.life) * (isDark ? 0.22 : 0.12) * themeMul();
         ctx.beginPath();
         ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${a})`;
-        ctx.lineWidth = 1.2 * (1 - r.life);
+        ctx.lineWidth = 1.35 * (1 - r.life);
         ctx.arc(r.x * width, r.y * height, radius, 0, Math.PI * 2);
         ctx.stroke();
         return true;
       });
 
       const pull = {
-        far: (5 + scrollP * 5) * focusMul,
-        mid: (10 + scrollP * 10) * focusMul,
-        near: (18 + scrollP * 16) * focusMul,
+        far: (6 + scrollP * 6) * focusMul,
+        mid: (12 + scrollP * 12) * focusMul,
+        near: (22 + scrollP * 18) * focusMul,
       };
 
       const drawn = [];
 
       stars.forEach((s) => {
-        if (s.layer === 'near' && scrollP < 0.18) return;
-
         s.x += s.drift * speed;
         if (s.x < -0.02) s.x = 1.02;
         if (s.x > 1.02) s.x = -0.02;
 
+        const pos = starPos(s);
         const ox = (focusX - 0.5) * pull[s.layer];
         const oy = (focusY - 0.5) * pull[s.layer];
-        const x = s.x * width + ox;
-        const y = s.y * height + oy;
-        let alpha = s.base * density;
+        const x = wrap(pos.x + ox, width);
+        const y = wrap(pos.y + oy, height);
+        let alpha = s.base * density * 1.35;
 
         if (s.layer !== 'far') {
-          alpha *= 0.9 + 0.1 * Math.sin(time * (0.6 + scrollP * 0.4) + s.tw);
+          alpha *= 0.86 + 0.14 * Math.sin(time * s.pulse + s.tw);
         }
 
         const d = Math.hypot(x - px, y - py);
-        if (d < wakeR && focusMul > 0.05) {
-          alpha *= 1 + (1 - d / wakeR) * 0.55 * focusMul;
-          if (focusMul > 0.25) drawn.push({ x, y, d });
+        if (d < wakeR) {
+          alpha *= 1 + (1 - d / wakeR) * 0.85 * focusMul;
+        }
+        if (s.layer !== 'far' || d < wakeR * 1.15) {
+          drawn.push({ x, y, d, layer: s.layer });
         }
 
         ripples.forEach((r) => {
-          const rx = r.x * width;
-          const ry = r.y * height;
-          const rd = Math.hypot(x - rx, y - ry);
-          const wave = 20 + r.life * 110;
-          if (Math.abs(rd - wave) < 28) {
-            alpha *= 1 + (1 - r.life) * 0.7;
+          const rd = Math.hypot(x - r.x * width, y - r.y * height);
+          const wave = 18 + r.life * 180;
+          if (Math.abs(rd - wave) < 40) {
+            alpha *= 1 + (1 - r.life) * 1.1;
           }
         });
 
-        alpha = Math.min(isDark ? 0.42 : 0.2, alpha);
+        alpha = Math.min(isDark ? 0.72 : 0.42, alpha);
         ctx.beginPath();
         ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${alpha})`;
-        ctx.arc(x, y, s.r * (1 + scrollP * 0.12), 0, Math.PI * 2);
+        ctx.arc(x, y, s.r * (1.05 + scrollP * 0.22 + scrollBoost * 0.2), 0, Math.PI * 2);
         ctx.fill();
       });
 
-      if (focusMul > 0.35 && drawn.length > 1) {
+      const ringR = 70 + scrollP * (Math.min(width, height) * 0.42) + scrollBoost * 40;
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${(isDark ? 0.16 : 0.1) * (0.45 + scrollBoost)})`;
+      ctx.lineWidth = 1;
+      ctx.arc(px, py, ringR, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (drawn.length > 1) {
         drawn.sort((a, b) => a.d - b.d);
-        const near = drawn.slice(0, 8);
-        ctx.lineWidth = 0.6;
+        const near = drawn.filter((n) => n.layer !== 'far').slice(0, 14);
+        ctx.lineWidth = 0.7;
         for (let i = 0; i < near.length; i += 1) {
           for (let j = i + 1; j < near.length; j += 1) {
             const a = near[i];
             const b = near[j];
             const dist = Math.hypot(a.x - b.x, a.y - b.y);
-            if (dist > 90) continue;
-            const lineA = (isDark ? 0.1 : 0.05) * (1 - dist / 90) * focusMul;
+            if (dist > 120 + scrollBoost * 40) continue;
+            const lineA = (isDark ? 0.2 : 0.12) * (1 - dist / 160) * (0.55 + scrollBoost);
             ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${lineA})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -640,10 +756,9 @@
     function onPointerDown(e) {
       setPointerFromEvent(e);
       pointer.active = true;
-      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
-        ripples.push({ x: pointer.x, y: pointer.y, life: 0 });
-        if (ripples.length > 4) ripples.shift();
-      }
+      ripples.push({ x: pointer.x, y: pointer.y, life: 0 });
+      if (ripples.length > 5) ripples.shift();
+      if (Math.random() > 0.65) spawnMeteor();
     }
 
     function onPointerUp() {
@@ -653,9 +768,25 @@
     readTheme();
     resize();
     window.addEventListener('resize', resize, { passive: true });
+    lastScrollY = window.scrollY;
     window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const delta = y - lastScrollY;
+      scrollVel += delta;
+      lastScrollY = y;
       scrollP = scrollProgress();
+      if (Math.abs(delta) > 6) {
+        ripples.push({
+          x: 0.5 + (Math.random() - 0.5) * 0.4,
+          y: delta > 0 ? 0.62 : 0.28,
+          life: 0,
+        });
+        if (ripples.length > 6) ripples.shift();
+      }
       if (reducedMotion.matches) drawStatic();
+    }, { passive: true });
+    window.addEventListener('wheel', (e) => {
+      scrollVel += e.deltaY * 0.45;
     }, { passive: true });
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
@@ -753,6 +884,259 @@
     track.setAttribute('aria-hidden', 'true');
   }
 
+  function initPlayground() {
+    const canvas = document.getElementById('play-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const lines = ['CHANGE IT', '& DESIGN'];
+    let dpr = 1;
+    let w = 0;
+    let h = 0;
+    let letters = [];
+    let pointer = { x: 0, y: 0, down: false, inside: false };
+    let raf = 0;
+    let running = false;
+    let ink = { r: 10, g: 10, b: 10 };
+    let isDark = false;
+    let burst = [];
+
+    function readInk() {
+      isDark = document.documentElement.classList.contains('dark');
+      const raw = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim().replace('#', '');
+      if (raw.length === 6) {
+        ink = {
+          r: parseInt(raw.slice(0, 2), 16),
+          g: parseInt(raw.slice(2, 4), 16),
+          b: parseInt(raw.slice(4, 6), 16),
+        };
+      }
+    }
+
+    function layout() {
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = Math.max(1, Math.floor(rect.width));
+      h = Math.max(1, Math.floor(rect.height));
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const size = Math.max(22, Math.min(42, w / 12));
+      ctx.font = `600 ${size}px "Source Serif 4", Georgia, serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const next = [];
+      const gapY = size * 1.35;
+      const startY = h / 2 - ((lines.length - 1) * gapY) / 2;
+      lines.forEach((line, li) => {
+        const chars = line.split('');
+        const widths = chars.map((ch) => (ch === ' ' ? size * 0.38 : ctx.measureText(ch).width + 6));
+        const total = widths.reduce((a, b) => a + b, 0);
+        let x = (w - total) / 2;
+        chars.forEach((ch, ci) => {
+          const cw = widths[ci];
+          const hx = x + cw / 2;
+          const hy = startY + li * gapY;
+          const prev = letters[next.length];
+          next.push({
+            ch,
+            hx,
+            hy,
+            x: prev ? prev.x : hx,
+            y: prev ? prev.y : hy,
+            vx: prev ? prev.vx : 0,
+            vy: prev ? prev.vy : 0,
+            space: ch === ' ',
+          });
+          x += cw;
+        });
+      });
+      letters = next;
+    }
+
+    function scatter(cx, cy, power) {
+      letters.forEach((p) => {
+        if (p.space) return;
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+        const d = Math.max(24, Math.hypot(dx, dy));
+        p.vx += (dx / d) * power;
+        p.vy += (dy / d) * power;
+      });
+    }
+
+    function reform() {
+      letters.forEach((p) => {
+        p.vx *= 0.2;
+        p.vy *= 0.2;
+      });
+    }
+
+    function addBurst(x, y) {
+      for (let i = 0; i < 14; i += 1) {
+        const a = Math.random() * Math.PI * 2;
+        const s = 1.2 + Math.random() * 3.2;
+        burst.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1 });
+      }
+    }
+
+    function step() {
+      if (!running) return;
+      readInk();
+      ctx.clearRect(0, 0, w, h);
+
+      const magnet = pointer.inside ? 1 : 0;
+      letters.forEach((p) => {
+        if (p.space) return;
+        const toHomeX = (p.hx - p.x) * 0.045;
+        const toHomeY = (p.hy - p.y) * 0.045;
+        p.vx += toHomeX;
+        p.vy += toHomeY;
+
+        if (magnet) {
+          const dx = pointer.x - p.x;
+          const dy = pointer.y - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d < 140 && d > 1) {
+            const pull = pointer.down ? 0.08 : 0.035;
+            p.vx += (dx / d) * pull * (1 - d / 140) * 18;
+            p.vy += (dy / d) * pull * (1 - d / 140) * 18;
+          }
+        }
+
+        p.vx *= 0.9;
+        p.vy *= 0.9;
+        p.x += p.vx;
+        p.y += p.vy;
+      });
+
+      // constellation between nearby letters
+      ctx.lineWidth = 0.7;
+      for (let i = 0; i < letters.length; i += 1) {
+        const a = letters[i];
+        if (a.space) continue;
+        for (let j = i + 1; j < letters.length; j += 1) {
+          const b = letters[j];
+          if (b.space) continue;
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          if (dist > 78) continue;
+          const alpha = (isDark ? 0.18 : 0.12) * (1 - dist / 78);
+          ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+
+      const size = Math.max(22, Math.min(42, w / 12));
+      ctx.font = `600 ${size}px "Source Serif 4", Georgia, serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = `rgb(${ink.r},${ink.g},${ink.b})`;
+      letters.forEach((p) => {
+        if (p.space) return;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.vx * 0.02);
+        ctx.fillText(p.ch, 0, 0);
+        ctx.restore();
+      });
+
+      burst = burst.filter((dot) => {
+        dot.life -= 0.02;
+        if (dot.life <= 0) return false;
+        dot.x += dot.vx;
+        dot.y += dot.vy;
+        dot.vx *= 0.96;
+        dot.vy *= 0.96;
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${dot.life * 0.45})`;
+        ctx.arc(dot.x, dot.y, 1.6 * dot.life, 0, Math.PI * 2);
+        ctx.fill();
+        return true;
+      });
+
+      if (pointer.inside) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${ink.r},${ink.g},${ink.b},${isDark ? 0.28 : 0.18})`;
+        ctx.lineWidth = 1;
+        ctx.arc(pointer.x, pointer.y, pointer.down ? 18 : 12, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      raf = requestAnimationFrame(step);
+    }
+
+    function start() {
+      if (running || reduced.matches) return;
+      running = true;
+      raf = requestAnimationFrame(step);
+    }
+
+    function localPoint(e) {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = e.clientX - rect.left;
+      pointer.y = e.clientY - rect.top;
+    }
+
+    canvas.addEventListener('pointerenter', (e) => {
+      pointer.inside = true;
+      localPoint(e);
+    });
+    canvas.addEventListener('pointerleave', () => {
+      pointer.inside = false;
+      pointer.down = false;
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      localPoint(e);
+      pointer.inside = true;
+    });
+    canvas.addEventListener('pointerdown', (e) => {
+      canvas.setPointerCapture(e.pointerId);
+      localPoint(e);
+      pointer.down = true;
+      pointer.inside = true;
+      scatter(pointer.x, pointer.y, 7.5);
+      addBurst(pointer.x, pointer.y);
+    });
+    canvas.addEventListener('pointerup', () => {
+      pointer.down = false;
+    });
+
+    document.querySelector('[data-play-scatter]')?.addEventListener('click', () => {
+      scatter(w / 2, h / 2, 11);
+      addBurst(w / 2, h / 2);
+    });
+    document.querySelector('[data-play-reform]')?.addEventListener('click', reform);
+
+    window.addEventListener('resize', layout, { passive: true });
+    new MutationObserver(() => readInk()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    });
+
+    readInk();
+    layout();
+    if (reduced.matches) {
+      ctx.clearRect(0, 0, w, h);
+      const size = Math.max(22, Math.min(42, w / 12));
+      ctx.font = `600 ${size}px "Source Serif 4", Georgia, serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = `rgb(${ink.r},${ink.g},${ink.b})`;
+      letters.forEach((p) => {
+        if (!p.space) ctx.fillText(p.ch, p.hx, p.hy);
+      });
+      return;
+    }
+    start();
+  }
+
   function initCertModal() {
     const modal = document.getElementById('cert-modal');
     if (!modal) return;
@@ -831,6 +1215,7 @@
     initSpaceField();
     initStackMarquee();
     initCertModal();
+    initPlayground();
     const y = String(new Date().getFullYear());
     if (yearEl) yearEl.textContent = y;
     if (yearFooter) yearFooter.textContent = y;
