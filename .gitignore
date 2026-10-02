@@ -14,3 +14,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Vite
+node_modules/
+dist/
+*.tsbuildinfo
